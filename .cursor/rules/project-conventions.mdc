@@ -1,0 +1,14 @@
+---
+description: Keep the app simple and keep project documentation current
+alwaysApply: true
+---
+
+# Business Management System
+
+Read `documentation/PROJECT.md` before changing architecture.
+
+- Prefer simple, readable code. Do not add layers, base classes, or packages unless they solve a real problem.
+- Do not implement unrequested business modules.
+- Use `AppColors` and `AppTextStyles`. Do not hardcode colors.
+- Put the public Supabase URL and anon/publishable key in `lib/config/app_config.dart`. Never add a service-role key to Flutter.
+- After finishing work, update `documentation/PROJECT.md` and add `documentation/commands/NNN_short_name.md` for the user command.

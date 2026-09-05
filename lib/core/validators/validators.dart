@@ -13,10 +13,39 @@ abstract final class Validators {
     return null;
   }
 
+  static String? optionalEmail(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    return email(value);
+  }
+
+  static String? optionalPhone(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    return phone(value);
+  }
+
+  static String? maxLength(
+    String? value,
+    int max, [
+    String label = 'This field',
+  ]) {
+    if (value == null || value.trim().isEmpty) return null;
+    if (value.trim().length > max) {
+      return '$label must be $max characters or fewer.';
+    }
+    return null;
+  }
+
   static String? password(String? value) {
     final requiredError = requiredField(value, 'Password');
     if (requiredError != null) return requiredError;
     if (value!.length < 8) return 'Password must be at least 8 characters.';
+    return null;
+  }
+
+  static String? confirmPassword(String? value, String password) {
+    final requiredError = requiredField(value, 'Confirm password');
+    if (requiredError != null) return requiredError;
+    if (value != password) return 'Passwords do not match.';
     return null;
   }
 
@@ -41,6 +70,14 @@ abstract final class Validators {
     final numberError = number(value);
     if (numberError != null) return numberError;
     if (num.parse(value!.trim()) <= 0) return 'Enter a number greater than 0.';
+    return null;
+  }
+
+  static String? nonNegativeNumber(String? value, [String label = 'Value']) {
+    if (value == null || value.trim().isEmpty) return '$label is required.';
+    final parsed = num.tryParse(value.trim());
+    if (parsed == null) return 'Enter a valid number.';
+    if (parsed < 0) return '$label cannot be negative.';
     return null;
   }
 }

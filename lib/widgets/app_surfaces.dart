@@ -150,3 +150,28 @@ class AppBadge extends StatelessWidget {
     );
   }
 }
+
+class AppDetailRow extends StatelessWidget {
+  const AppDetailRow({super.key, required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSizes.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.caption),
+          const SizedBox(height: 4),
+          Text(
+            value.trim().isEmpty ? '—' : value,
+            style: AppTextStyles.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}

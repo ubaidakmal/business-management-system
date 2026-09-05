@@ -6,101 +6,120 @@ Living project document. Update this file whenever a phase or meaningful change 
 
 Internal ERP-style app for companies, products, purchases, sales, stock, transactions, profit, and reports.
 
-Current phase: **Phase 1 — Project foundation only.** Business modules are not implemented.
+Current phase: **Phase 5 — Sales Management.** Stock/reports remain placeholders.
 
 ## Stack
 
 - Flutter / Dart (SDK `^3.10.1`)
-- Supabase + PostgreSQL (client foundation only)
+- Supabase Auth + PostgreSQL + RLS
 - Navigator 1.0 routes (`onGenerateRoute`)
-- `ChangeNotifier` when a screen later needs shared state (`AppStatus` enum is ready now)
+- `ChangeNotifier` controllers (`AuthController`, `CompaniesController`, `ProductsController`, `PurchasesController`, `SalesController`)
 
 ## Architecture
 
-Keep this simple on purpose.
-
 ```
 Screen
-  → ChangeNotifier (only when state is real)
-    → Service (Supabase / APIs)
-      → Database
+  → Controller (ChangeNotifier) when list state is shared on the screen
+  → Service
+  → Supabase
 ```
 
-Add a repository later only if a service is doing too much mapping or is reused by several screens.
+Form screens call services directly with local loading/error state.
 
-Do not add extra layers, base classes, or wrappers unless they solve a real problem.
+## Auth (Phase 2)
 
-## Folder map
+- Session restore, login, logout, forgot/reset password
+- Profiles + roles (`admin` / `user`)
+- Test admin: `admin@bms.app` / `Password123!`
 
-```
-lib/
-  main.dart                 App bootstrap + Supabase init
-  app.dart                  MaterialApp
-  config/app_config.dart    public Supabase URL + anon key
-  core/constants/           colors, sizes, strings
-  core/theme/               theme + typography
-  core/routes/              route names + router
-  core/utils/               logger, errors, responsive
-  core/validators/          shared form validators
-  models/                   Dart models (AppUser is the pattern)
-  services/                 Supabase client
-  state/                    AppStatus
-  widgets/                  reusable UI
-  screens/                  splash, login placeholder, module placeholders
+## Companies & Products (Phase 3)
 
-documentation/
-  PROJECT.md                this file
-  commands/                 one markdown file per user command
-```
+### Tables
 
-There is no `repositories/` folder yet. Do not create empty folders for future theory.
+- `companies`: name, code, contact, address, notes, `is_active`, timestamps, `created_by`
+- `products`: `company_id`, name, sku, barcode, category, unit, description,
+  `purchase_price numeric(14,2)`, `sale_price numeric(14,2)`,
+  `opening_stock numeric(14,3)`, `is_active`, timestamps, `created_by`
 
-## Theme
+### Design decisions
 
-- Colors: `lib/core/constants/app_colors.dart` (`AppColors`)
-- Type: `lib/core/theme/app_text_styles.dart` (`AppTextStyles`)
-- Theme: `lib/core/theme/app_theme.dart` (`AppTheme.light`)
-- Visual direction: deep navy primary, light surfaces, gray neutrals, green/red/amber/blue for status
+- Prefer **deactivate** over hard delete; hard delete is admin-only
+- Product `company_id` uses `ON DELETE RESTRICT` so companies with products cannot be wiped accidentally
+- Opening stock is a simple starting quantity only — no stock ledger yet
+- Money uses `numeric`, not float
 
-Never hardcode colors in screens. Use `AppColors` / `AppTextStyles`.
+### Screens
 
-## State
+- Companies list / form / detail
+- Products list / form / detail
+- Search + filters on lists
+- Desktop responsive rows, mobile cards
 
-`AppStatus`: `initial`, `loading`, `success`, `error`, `empty`.
+## Purchases (Phase 4)
 
-When a later phase needs screen state, use a small `ChangeNotifier` on that screen. Do not introduce Provider/Riverpod/Bloc unless sharing state across many screens becomes painful.
+### Tables
 
-## Supabase
+- `purchases`: `company_id`, date, invoice/reference, notes, subtotal/discount/other_charges/total,
+  status (`draft` | `completed` | `cancelled`), `created_by`, timestamps
+- `purchase_items`: `purchase_id`, `product_id`, quantity, historical `unit_cost`, `line_total`
 
-- Public URL + anon/publishable key live in `lib/config/app_config.dart`
-- Android Studio Play and `flutter run` both read those values. No `--dart-define` needed
-- Never put a service-role key in Flutter
-- Init lives in `SupabaseService.initialize()`
-- Project URL and anon/publishable key are set in `AppConfig` for local Play/run
-- Never put a service-role key in Flutter
+### Design decisions
+
+- Create/update drafts via transactional RPCs so headers never orphan without items
+- Server recalculates line totals and purchase totals
+- Duplicate product on one purchase is blocked at DB and merged in the UI
+- Editing allowed for drafts only; completed historical amounts are not freely edited
+- Cancel keeps the record (no stock movement yet)
+- Does **not** change `products.purchase_price` or `opening_stock`
+
+### Screens
+
+- Purchases list / form / detail
+- Search by invoice, reference, company name
+- Filters: company, status, date range
+- Desktop rows + mobile cards; form uses stacked item cards on all sizes
+
+## Sales (Phase 5)
+
+### Tables
+
+- `sales`: `company_id`, date, invoice/reference, notes, subtotal/discount/other_charges/total,
+  status (`draft` | `completed` | `cancelled`), `created_by`, timestamps
+- `sale_items`: `sale_id`, `product_id`, quantity, historical `unit_price`, `line_total`
+
+### Design decisions
+
+- Same transactional RPC pattern as purchases (`create_sale_with_items`, draft update, cancel)
+- Historical selling price stored on items; current `products.sale_price` is only a default
+- No stock deduction, COGS, or profit in this phase
+- Draft editable; completed not freely editable; cancel preserves the record
+
+### Screens
+
+- Sales list / form / detail
+- Search by invoice, reference, company name
+- Filters: company, status, date range
+- Desktop rows + mobile cards
 
 ## Routing
 
-Implemented placeholders:
+Public: `/`, `/login`, `/forgot-password`, `/reset-password`
 
-- `/` splash
-- `/login`
+Protected:
+
 - `/dashboard`
-- `/companies`
-- `/products`
-- `/purchases`
-- `/sales`
-- `/stock`
-- `/reports`
+- `/companies`, `/companies/form`, `/companies/detail`
+- `/products`, `/products/form`, `/products/detail`
+- `/purchases`, `/purchases/form`, `/purchases/detail`
+- `/sales`, `/sales/form`, `/sales/detail`
 - `/settings`
-
-Login has a temporary **Continue without signing in** action so the shell can be reached before auth exists. Remove it when auth is real.
+- placeholders: stock, reports
 
 ## Conventions
 
 - Prefer one clear file over three tiny files
-- Do not copy Digi Dukaan’s cache/offline/platform-owner complexity
-- Do not implement business modules until their phase
+- Use `AppColors` / `AppTextStyles` / existing widgets
+- Never put a service-role key in Flutter
 - After every user command: update this file and add `documentation/commands/NNN_short_name.md`
 
 ## How to run
@@ -110,23 +129,33 @@ flutter pub get
 flutter run
 ```
 
-Android Studio: press Play. Keys are already in `lib/config/app_config.dart`.
-
 ## Changelog
 
-### 2026-09-04 — Supabase project keys in AppConfig
+### 2026-09-05 — Phase 5 Sales Management
 
-- Added the project URL and publishable key to `lib/config/app_config.dart`
+- Added sales / sale_items tables, RLS, and transactional RPCs
+- Flutter list/form/detail with search, filters, draft edit, cancel
+- No stock or profit logic
 
-### 2026-09-03 — Android Studio Play / config keys
+### 2026-09-05 — Phase 4 Purchase Management
 
-- Supabase URL and anon key now live in `lib/config/app_config.dart`
-- Removed the `--dart-define` run requirement so Play works with no extra args
+- Added purchases / purchase_items tables, RLS, and transactional RPCs
+- Flutter list/form/detail with search, filters, draft edit, cancel
+- Follow-up migration fixed RPC item-alias ambiguity on create/update
 
-### Phase 1 — Foundation (2026-09-03)
+### 2026-09-04 — Phase 3 Companies & Products
 
-- Replaced the default counter app with a simple ERP foundation
-- Centralized colors, typography, theme, routes, validators, errors, and responsive helpers
-- Added reusable widgets and module placeholder screens
-- Prepared Supabase client init without embedding secrets
-- Added this living document and a per-command documentation folder
+- Added companies/products tables, RLS, and Flutter CRUD UI
+- Opening stock stored as foundation data only
+
+### 2026-09-04 — Phase 2 Authentication
+
+- Profiles, login/logout/session, password reset, AuthGate
+
+### 2026-09-04 — Supabase keys in AppConfig
+
+- Public URL + publishable key for Android Studio Play
+
+### Phase 1 — Foundation
+
+- Theme, routes, widgets, docs pattern

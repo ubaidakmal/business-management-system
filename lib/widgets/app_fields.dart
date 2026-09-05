@@ -108,10 +108,12 @@ class AppDropdown<T> extends StatelessWidget {
         Text(label, style: AppTextStyles.label),
         const SizedBox(height: 6),
         DropdownButtonFormField<T>(
-          initialValue: value,
+          key: ValueKey(value),
+          initialValue: items.any((item) => item.value == value) ? value : null,
           items: items,
           onChanged: onChanged,
           validator: validator,
+          isExpanded: true,
           decoration: InputDecoration(hintText: hint ?? label),
         ),
       ],

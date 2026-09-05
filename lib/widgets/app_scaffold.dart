@@ -6,6 +6,7 @@ import '../core/constants/app_strings.dart';
 import '../core/routes/app_router.dart';
 import '../core/theme/app_text_styles.dart';
 import '../core/utils/responsive.dart';
+import '../state/auth_controller.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
@@ -19,12 +20,27 @@ class AppScaffold extends StatelessWidget {
   final Widget body;
   final String? route;
 
+  Future<void> _signOut(BuildContext context) async {
+    await AuthScope.read(context).signOut();
+    if (!context.mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (_) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final desktop = AppResponsive.isDesktop(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(title, style: AppTextStyles.headingSmall)),
+      appBar: AppBar(
+        title: Text(title, style: AppTextStyles.headingSmall),
+        actions: [
+          IconButton(
+            tooltip: AppStrings.signOut,
+            onPressed: () => _signOut(context),
+            icon: const Icon(Icons.logout),
+          ),
+        ],
+      ),
       drawer: desktop
           ? null
           : Drawer(child: _NavList(selectedRoute: route, inDrawer: true)),
@@ -67,18 +83,35 @@ class _NavList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onNavy = !inDrawer;
+    final user = AuthScope.of(context).user;
 
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-            child: Text(
-              AppStrings.appName,
-              style: AppTextStyles.headingSmall.copyWith(
-                color: onNavy ? Colors.white : AppColors.textPrimary,
-              ),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppStrings.appName,
+                  style: AppTextStyles.headingSmall.copyWith(
+                    color: onNavy ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
+                if (user?.email != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    user!.email,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: onNavy ? Colors.white70 : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           Expanded(

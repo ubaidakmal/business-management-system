@@ -19,6 +19,9 @@ import '../../screens/sale_form_screen.dart';
 import '../../screens/sales_screen.dart';
 import '../../screens/settings_screen.dart';
 import '../../screens/splash_screen.dart';
+import '../../screens/stock_adjustment_screen.dart';
+import '../../screens/stock_detail_screen.dart';
+import '../../screens/stock_screen.dart';
 import '../../widgets/auth_gate.dart';
 import '../constants/app_strings.dart';
 
@@ -53,6 +56,8 @@ abstract final class AppRoutes {
   static const saleForm = '/sales/form';
   static const saleDetail = '/sales/detail';
   static const stock = '/stock';
+  static const stockDetail = '/stock/detail';
+  static const stockAdjustment = '/stock/adjustment';
   static const reports = '/reports';
   static const settings = '/settings';
 
@@ -146,6 +151,13 @@ abstract final class AppRouter {
       ),
       AppRoutes.saleDetail => AuthGate(
         child: SaleDetailScreen(saleId: args as String),
+      ),
+      AppRoutes.stock => const AuthGate(child: StockScreen()),
+      AppRoutes.stockDetail => AuthGate(
+        child: StockDetailScreen(productId: args as String),
+      ),
+      AppRoutes.stockAdjustment => AuthGate(
+        child: StockAdjustmentScreen(productId: args as String?),
       ),
       AppRoutes.settings => const AuthGate(child: SettingsScreen()),
       _ => AuthGate(

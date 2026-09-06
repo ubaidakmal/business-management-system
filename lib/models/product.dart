@@ -12,6 +12,8 @@ class Product {
     this.purchasePrice = 0,
     this.salePrice = 0,
     this.openingStock = 0,
+    this.openingUnitCost = 0,
+    this.reorderLevel = 0,
     this.isActive = true,
     this.createdBy,
     this.createdAt,
@@ -30,6 +32,8 @@ class Product {
   final double purchasePrice;
   final double salePrice;
   final double openingStock;
+  final double openingUnitCost;
+  final double reorderLevel;
   final bool isActive;
   final String? createdBy;
   final DateTime? createdAt;
@@ -55,6 +59,8 @@ class Product {
       purchasePrice: _toDouble(json['purchase_price']),
       salePrice: _toDouble(json['sale_price']),
       openingStock: _toDouble(json['opening_stock']),
+      openingUnitCost: _toDouble(json['opening_unit_cost']),
+      reorderLevel: _toDouble(json['reorder_level']),
       isActive: json['is_active'] as bool? ?? true,
       createdBy: json['created_by'] as String?,
       createdAt: _parseDate(json['created_at']),
@@ -75,6 +81,8 @@ class Product {
       'purchase_price': purchasePrice,
       'sale_price': salePrice,
       'opening_stock': openingStock,
+      'opening_unit_cost': openingUnitCost,
+      'reorder_level': reorderLevel,
       'is_active': isActive,
       if (createdBy != null) 'created_by': createdBy,
     };

@@ -17,6 +17,7 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.maxLines = 1,
+    this.enabled = true,
   });
 
   final String label;
@@ -30,6 +31,7 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
   final int maxLines;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,7 @@ class AppTextField extends StatelessWidget {
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
+          enabled: enabled,
           obscureText: obscureText,
           keyboardType: keyboardType,
           textInputAction: textInputAction,

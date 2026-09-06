@@ -5,6 +5,7 @@ import 'package:business_management_app/models/company.dart';
 import 'package:business_management_app/models/product.dart';
 import 'package:business_management_app/models/purchase.dart';
 import 'package:business_management_app/models/sale.dart';
+import 'package:business_management_app/models/stock_movement.dart';
 
 void main() {
   test('Company.fromJson maps fields', () {
@@ -132,25 +133,64 @@ void main() {
       'discount': 100,
       'other_charges': 20,
       'total_amount': 920,
-      'status': 'draft',
+      'total_cogs': 175,
+      'total_profit': 125,
+      'status': 'completed',
       'companies': {'name': 'Acme'},
       'sale_items': [
         {
           'id': 'i1',
           'sale_id': 's1',
           'product_id': 'p1',
-          'quantity': 10,
-          'unit_price': 80,
-          'line_total': 800,
+          'quantity': 15,
+          'unit_price': 20,
+          'line_total': 300,
+          'cogs': 175,
+          'line_profit': 125,
           'products': {'name': 'Rice', 'sku': 'R1', 'unit': 'kg'},
         },
       ],
     });
 
     expect(sale.companyName, 'Acme');
-    expect(sale.canEdit, isTrue);
-    expect(sale.itemCount, 1);
-    expect(sale.items.first.productName, 'Rice');
-    expect(sale.items.first.unitPrice, 80);
+    expect(sale.showsCosting, isTrue);
+    expect(sale.totalCogs, 175);
+    expect(sale.totalProfit, 125);
+    expect(sale.items.first.cogs, 175);
+    expect(sale.items.first.lineProfit, 125);
+    expect(sale.items.first.revenue, 300);
+  });
+
+  test('StockBalance.fromJson maps current stock and low-stock flag', () {
+    final balance = StockBalance.fromJson({
+      'product_id': 'p1',
+      'company_id': 'c1',
+      'company_name': 'Acme',
+      'product_name': 'Rice',
+      'sku': 'R1',
+      'opening_stock': '20',
+      'reorder_level': 25,
+      'movement_qty': 5,
+      'current_stock': 25,
+      'is_low_stock': true,
+      'is_active': true,
+    });
+
+    expect(balance.currentStock, 25);
+    expect(balance.isLowStock, isTrue);
+    expect(balance.companyName, 'Acme');
+  });
+
+  test('StockMovement.typeLabel maps known types', () {
+    final movement = StockMovement.fromJson({
+      'id': 'm1',
+      'product_id': 'p1',
+      'movement_type': 'sale',
+      'quantity': '-3',
+      'created_at': '2026-09-05T10:00:00Z',
+    });
+
+    expect(movement.quantity, -3);
+    expect(movement.typeLabel, 'Sale');
   });
 }

@@ -111,6 +111,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         value: Formatters.quantity(product.openingStock),
                       ),
                       AppDetailRow(
+                        label: 'Opening unit cost',
+                        value: Formatters.money(product.openingUnitCost),
+                      ),
+                      AppDetailRow(
+                        label: 'Reorder level',
+                        value: Formatters.quantity(product.reorderLevel),
+                      ),
+                      AppDetailRow(
                         label: 'Description',
                         value: product.description ?? '',
                       ),

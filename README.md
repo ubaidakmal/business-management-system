@@ -18,11 +18,14 @@ Android Studio: press Play. Supabase keys are in `lib/config/app_config.dart`.
 - Email: `admin@bms.app`
 - Password: `Password123!`
 
-## Phase 3–5
+## Phase 3–7
 
-After login, use the sidebar for **Companies**, **Products**, **Purchases**, and **Sales**.
+After login: **Companies**, **Products**, **Purchases**, **Sales**, and **Stock**.
 
-Stock and reports remain placeholders.
+- Stock = opening stock + movements
+- Completed sales use **FIFO** for COGS and profit (shown on sale details)
+
+Reports / PDF export come later.
 
 Add password-reset redirect URLs in the Supabase Auth dashboard:
 

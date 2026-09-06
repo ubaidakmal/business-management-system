@@ -36,8 +36,8 @@ class DashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Manage companies, products, purchases, and sales. '
-            'Stock and reports come in later phases.',
+            'Manage companies, products, purchases, sales, and stock. '
+            'Reports come in a later phase.',
             style: AppTextStyles.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -72,6 +72,12 @@ class DashboardScreen extends StatelessWidget {
                 expanded: false,
                 onPressed: () =>
                     Navigator.pushReplacementNamed(context, AppRoutes.sales),
+              ),
+              AppOutlinedButton(
+                label: 'Stock',
+                expanded: false,
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, AppRoutes.stock),
               ),
             ],
           ),

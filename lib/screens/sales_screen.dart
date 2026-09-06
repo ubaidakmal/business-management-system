@@ -329,7 +329,9 @@ class _SalesScreenState extends State<SalesScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Total ${Formatters.money(sale.totalAmount)} · ${sale.itemCount} items',
+                sale.isCompleted
+                    ? 'Total ${Formatters.money(sale.totalAmount)} · Profit ${Formatters.money(sale.totalProfit)} · ${sale.itemCount} items'
+                    : 'Total ${Formatters.money(sale.totalAmount)} · ${sale.itemCount} items',
                 style: AppTextStyles.bodyMedium,
               ),
               const SizedBox(height: 12),

@@ -112,7 +112,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                               ? 'Invoice ${sale.invoiceNumber}'
                               : 'Sale',
                           subtitle:
-                              'Historical sale transaction. Stock is not updated in this phase.',
+                              'Historical sale. Completed sales include FIFO COGS and profit.',
                           action: Wrap(
                             spacing: AppSizes.sm,
                             children: [
@@ -246,8 +246,16 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                                                   'Price ${Formatters.money(item.unitPrice)}',
                                                 ),
                                                 Text(
-                                                  'Line ${Formatters.money(item.lineTotal)}',
+                                                  'Revenue ${Formatters.money(item.revenue)}',
                                                 ),
+                                                if (sale.showsCosting) ...[
+                                                  Text(
+                                                    'COGS ${Formatters.money(item.cogs)}',
+                                                  ),
+                                                  Text(
+                                                    'Profit ${Formatters.money(item.lineProfit)}',
+                                                  ),
+                                                ],
                                               ],
                                             ),
                                           ],
@@ -281,6 +289,16 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                                 label: 'Total',
                                 value: Formatters.money(sale.totalAmount),
                               ),
+                              if (sale.showsCosting) ...[
+                                AppDetailRow(
+                                  label: 'Total COGS (FIFO)',
+                                  value: Formatters.money(sale.totalCogs),
+                                ),
+                                AppDetailRow(
+                                  label: 'Total profit',
+                                  value: Formatters.money(sale.totalProfit),
+                                ),
+                              ],
                               if (sale.notes?.isNotEmpty == true) ...[
                                 const SizedBox(height: AppSizes.md),
                                 Text('Notes', style: AppTextStyles.label),

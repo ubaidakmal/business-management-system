@@ -4,123 +4,65 @@ Living project document. Update this file whenever a phase or meaningful change 
 
 ## Product
 
-Internal ERP-style app for companies, products, purchases, sales, stock, transactions, profit, and reports.
+Internal ERP-style app for companies, products, purchases, sales, stock, costing, profit, and reports.
 
-Current phase: **Phase 5 — Sales Management.** Stock/reports remain placeholders.
+Current phase: **Phase 7 — Transaction & Profit Engine (FIFO).** Reports/PDF remain later.
 
 ## Stack
 
 - Flutter / Dart (SDK `^3.10.1`)
 - Supabase Auth + PostgreSQL + RLS
 - Navigator 1.0 routes (`onGenerateRoute`)
-- `ChangeNotifier` controllers (`AuthController`, `CompaniesController`, `ProductsController`, `PurchasesController`, `SalesController`)
+- `ChangeNotifier` controllers
 
 ## Architecture
 
 ```
-Screen
-  → Controller (ChangeNotifier) when list state is shared on the screen
-  → Service
-  → Supabase
+Screen → Controller (lists) / local state (forms) → Service → Supabase/RPC
 ```
 
-Form screens call services directly with local loading/error state.
+## Stock (Phase 6)
 
-## Auth (Phase 2)
+`current_stock = opening_stock + SUM(stock_movements.quantity)`
 
-- Session restore, login, logout, forgot/reset password
-- Profiles + roles (`admin` / `user`)
-- Test admin: `admin@bms.app` / `Password123!`
+Draft docs do not move stock. Completed purchase/sale apply movements; cancel reverses.
 
-## Companies & Products (Phase 3)
+## FIFO / COGS / Profit (Phase 7)
 
-### Tables
+### Cost layers (`inventory_cost_layers`)
 
-- `companies`: name, code, contact, address, notes, `is_active`, timestamps, `created_by`
-- `products`: `company_id`, name, sku, barcode, category, unit, description,
-  `purchase_price numeric(14,2)`, `sale_price numeric(14,2)`,
-  `opening_stock numeric(14,3)`, `is_active`, timestamps, `created_by`
+Sources: `opening`, `purchase`, `adjustment`.
 
-### Design decisions
+Sales consume layers oldest-first (`created_at`, `id`).
 
-- Prefer **deactivate** over hard delete; hard delete is admin-only
-- Product `company_id` uses `ON DELETE RESTRICT` so companies with products cannot be wiped accidentally
-- Opening stock is a simple starting quantity only — no stock ledger yet
-- Money uses `numeric`, not float
+### Formulas
 
-### Screens
+- Line revenue = quantity × unit_price (`line_total`)
+- Line COGS = sum of FIFO allocations
+- Line profit = revenue − COGS
+- Sale total profit = sum of line profits
 
-- Companies list / form / detail
-- Products list / form / detail
-- Search + filters on lists
-- Desktop responsive rows, mobile cards
+Stored on `sale_items` / `sales` by the database (not Flutter).
 
-## Purchases (Phase 4)
+### Cancellations
 
-### Tables
+- Cancel completed sale: restore layer remaining, delete allocations, zero COGS/profit, reverse stock
+- Cancel completed purchase: only if its layer is fully remaining (not sold)
 
-- `purchases`: `company_id`, date, invoice/reference, notes, subtotal/discount/other_charges/total,
-  status (`draft` | `completed` | `cancelled`), `created_by`, timestamps
-- `purchase_items`: `purchase_id`, `product_id`, quantity, historical `unit_cost`, `line_total`
+### Opening cost
 
-### Design decisions
-
-- Create/update drafts via transactional RPCs so headers never orphan without items
-- Server recalculates line totals and purchase totals
-- Duplicate product on one purchase is blocked at DB and merged in the UI
-- Editing allowed for drafts only; completed historical amounts are not freely edited
-- Cancel keeps the record (no stock movement yet)
-- Does **not** change `products.purchase_price` or `opening_stock`
-
-### Screens
-
-- Purchases list / form / detail
-- Search by invoice, reference, company name
-- Filters: company, status, date range
-- Desktop rows + mobile cards; form uses stacked item cards on all sizes
-
-## Sales (Phase 5)
-
-### Tables
-
-- `sales`: `company_id`, date, invoice/reference, notes, subtotal/discount/other_charges/total,
-  status (`draft` | `completed` | `cancelled`), `created_by`, timestamps
-- `sale_items`: `sale_id`, `product_id`, quantity, historical `unit_price`, `line_total`
-
-### Design decisions
-
-- Same transactional RPC pattern as purchases (`create_sale_with_items`, draft update, cancel)
-- Historical selling price stored on items; current `products.sale_price` is only a default
-- No stock deduction, COGS, or profit in this phase
-- Draft editable; completed not freely editable; cancel preserves the record
-
-### Screens
-
-- Sales list / form / detail
-- Search by invoice, reference, company name
-- Filters: company, status, date range
-- Desktop rows + mobile cards
+`products.opening_unit_cost` seeds the opening FIFO layer. Locked after stock movements exist.
 
 ## Routing
 
-Public: `/`, `/login`, `/forgot-password`, `/reset-password`
-
-Protected:
-
-- `/dashboard`
-- `/companies`, `/companies/form`, `/companies/detail`
-- `/products`, `/products/form`, `/products/detail`
-- `/purchases`, `/purchases/form`, `/purchases/detail`
-- `/sales`, `/sales/form`, `/sales/detail`
-- `/settings`
-- placeholders: stock, reports
+Protected: dashboard, companies, products, purchases, sales, stock, settings.  
+Placeholder: reports.
 
 ## Conventions
 
-- Prefer one clear file over three tiny files
-- Use `AppColors` / `AppTextStyles` / existing widgets
+- Prefer simple files; reuse widgets/theme
 - Never put a service-role key in Flutter
-- After every user command: update this file and add `documentation/commands/NNN_short_name.md`
+- After each user command: update this file + `documentation/commands/NNN_*.md`
 
 ## How to run
 
@@ -129,33 +71,24 @@ flutter pub get
 flutter run
 ```
 
+Test admin: `admin@bms.app` / `Password123!`
+
 ## Changelog
 
-### 2026-09-05 — Phase 5 Sales Management
+### 2026-09-06 — Phase 7 FIFO / COGS / Profit
 
-- Added sales / sale_items tables, RLS, and transactional RPCs
-- Flutter list/form/detail with search, filters, draft edit, cancel
-- No stock or profit logic
+- Cost layers + sale allocations; COGS/profit on sales
+- Integrated with purchase/sale complete & cancel
+- Sale UI shows revenue, COGS, profit
 
-### 2026-09-05 — Phase 4 Purchase Management
+### 2026-09-05 — Phase 6 Stock
 
-- Added purchases / purchase_items tables, RLS, and transactional RPCs
-- Flutter list/form/detail with search, filters, draft edit, cancel
-- Follow-up migration fixed RPC item-alias ambiguity on create/update
+- stock_movements + balances; purchase/sale stock integration
 
-### 2026-09-04 — Phase 3 Companies & Products
+### 2026-09-05 — Phase 5 Sales / Phase 4 Purchases
 
-- Added companies/products tables, RLS, and Flutter CRUD UI
-- Opening stock stored as foundation data only
+- Transaction headers + items via RPCs
 
-### 2026-09-04 — Phase 2 Authentication
+### Earlier
 
-- Profiles, login/logout/session, password reset, AuthGate
-
-### 2026-09-04 — Supabase keys in AppConfig
-
-- Public URL + publishable key for Android Studio Play
-
-### Phase 1 — Foundation
-
-- Theme, routes, widgets, docs pattern
+- Phase 3 companies/products, Phase 2 auth, Phase 1 foundation

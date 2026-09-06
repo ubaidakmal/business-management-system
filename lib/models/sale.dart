@@ -9,6 +9,8 @@ class SaleItem {
     this.productName,
     this.productSku,
     this.productUnit,
+    this.cogs = 0,
+    this.lineProfit = 0,
     this.createdAt,
   });
 
@@ -21,7 +23,11 @@ class SaleItem {
   final double quantity;
   final double unitPrice;
   final double lineTotal;
+  final double cogs;
+  final double lineProfit;
   final DateTime? createdAt;
+
+  double get revenue => lineTotal;
 
   factory SaleItem.fromJson(Map<String, dynamic> json) {
     final product = json['products'];
@@ -44,6 +50,8 @@ class SaleItem {
       quantity: _toDouble(json['quantity']),
       unitPrice: _toDouble(json['unit_price']),
       lineTotal: _toDouble(json['line_total']),
+      cogs: _toDouble(json['cogs']),
+      lineProfit: _toDouble(json['line_profit']),
       createdAt: _parseDate(json['created_at']),
     );
   }
@@ -73,6 +81,8 @@ class Sale {
     this.notes,
     this.itemCount = 0,
     this.items = const [],
+    this.totalCogs = 0,
+    this.totalProfit = 0,
     this.createdBy,
     this.createdAt,
     this.updatedAt,
@@ -92,6 +102,8 @@ class Sale {
   final String status;
   final int itemCount;
   final List<SaleItem> items;
+  final double totalCogs;
+  final double totalProfit;
   final String? createdBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -101,6 +113,7 @@ class Sale {
   bool get isCancelled => status == 'cancelled';
   bool get canEdit => isDraft;
   bool get canCancel => !isCancelled;
+  bool get showsCosting => isCompleted;
 
   factory Sale.fromJson(Map<String, dynamic> json) {
     final company = json['companies'];
@@ -146,6 +159,8 @@ class Sale {
       status: json['status'] as String? ?? 'draft',
       itemCount: itemCount,
       items: items,
+      totalCogs: _toDouble(json['total_cogs']),
+      totalProfit: _toDouble(json['total_profit']),
       createdBy: json['created_by'] as String?,
       createdAt: _parseDate(json['created_at']),
       updatedAt: _parseDate(json['updated_at']),

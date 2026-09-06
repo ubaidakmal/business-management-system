@@ -34,6 +34,14 @@ abstract final class AppError {
       if (code == '23503' || details.contains('foreign key')) {
         return 'This record is linked to other data and cannot be deleted. Deactivate it instead.';
       }
+      if (details.contains('insufficient stock')) {
+        return error.message.isEmpty
+            ? 'Insufficient stock for this transaction.'
+            : error.message;
+      }
+      if (details.contains('opening stock cannot be changed')) {
+        return 'Opening stock cannot be changed after stock movements exist.';
+      }
       return error.message.isEmpty ? 'Database request failed.' : error.message;
     }
     if (error is FunctionException) {

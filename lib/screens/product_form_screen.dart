@@ -10,6 +10,7 @@ import '../models/company.dart';
 import '../models/product.dart';
 import '../services/company_service.dart';
 import '../services/product_service.dart';
+import '../services/stock_service.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_feedback.dart';
 import '../widgets/app_fields.dart';
@@ -29,6 +30,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _productService = ProductService();
   final _companyService = CompanyService();
+  final _stockService = StockService();
 
   final _name = TextEditingController();
   final _sku = TextEditingController();
@@ -39,10 +41,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   final _purchasePrice = TextEditingController(text: '0');
   final _salePrice = TextEditingController(text: '0');
   final _openingStock = TextEditingController(text: '0');
+  final _openingUnitCost = TextEditingController(text: '0');
+  final _reorderLevel = TextEditingController(text: '0');
 
   List<Company> _companies = const [];
   String? _companyId;
   bool _isActive = true;
+  bool _openingStockLocked = false;
   bool _loading = true;
   bool _saving = false;
   String? _error;
@@ -74,7 +79,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         _purchasePrice.text = product.purchasePrice.toStringAsFixed(2);
         _salePrice.text = product.salePrice.toStringAsFixed(2);
         _openingStock.text = product.openingStock.toString();
+        _openingUnitCost.text = product.openingUnitCost.toStringAsFixed(2);
+        _reorderLevel.text = product.reorderLevel.toString();
         _isActive = product.isActive;
+        _openingStockLocked =
+            await _stockService.hasMovements(product.id);
 
         // Keep selected company visible even if inactive.
         if (!_companies.any((c) => c.id == product.companyId)) {
@@ -104,6 +113,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     _purchasePrice.dispose();
     _salePrice.dispose();
     _openingStock.dispose();
+    _openingUnitCost.dispose();
+    _reorderLevel.dispose();
     super.dispose();
   }
 
@@ -129,6 +140,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       purchasePrice: double.parse(_purchasePrice.text.trim()),
       salePrice: double.parse(_salePrice.text.trim()),
       openingStock: double.parse(_openingStock.text.trim()),
+      openingUnitCost: double.parse(_openingUnitCost.text.trim()),
+      reorderLevel: double.parse(_reorderLevel.text.trim()),
       isActive: _isActive,
     );
 
@@ -270,17 +283,56 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                           ),
                         ),
                         const SizedBox(height: AppSizes.md),
+                        _twoCol(
+                          desktop: desktop,
+                          left: AppTextField(
+                            label: _openingStockLocked
+                                ? 'Opening stock (locked)'
+                                : 'Opening stock',
+                            controller: _openingStock,
+                            enabled: !_openingStockLocked,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            validator: (value) => Validators.nonNegativeNumber(
+                              value,
+                              'Opening stock',
+                            ),
+                          ),
+                          right: AppTextField(
+                            label: _openingStockLocked
+                                ? 'Opening unit cost (locked)'
+                                : 'Opening unit cost',
+                            controller: _openingUnitCost,
+                            enabled: !_openingStockLocked,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            validator: (value) => Validators.nonNegativeNumber(
+                              value,
+                              'Opening unit cost',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSizes.md),
                         AppTextField(
-                          label: 'Opening stock',
-                          controller: _openingStock,
+                          label: 'Reorder level',
+                          controller: _reorderLevel,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
                           validator: (value) => Validators.nonNegativeNumber(
                             value,
-                            'Opening stock',
+                            'Reorder level',
                           ),
                         ),
+                        if (_openingStockLocked) ...[
+                          const SizedBox(height: AppSizes.sm),
+                          Text(
+                            'Opening stock/cost are locked because stock movements exist.',
+                            style: AppTextStyles.bodySmall,
+                          ),
+                        ],
                         const SizedBox(height: AppSizes.md),
                         AppTextField(
                           label: 'Description',

@@ -167,7 +167,10 @@ class PurchaseService {
 
   Future<void> cancel(String purchaseId) async {
     try {
-      await _client.rpc('cancel_purchase', params: {'p_purchase_id': purchaseId});
+      await _client.rpc(
+        'cancel_purchase',
+        params: {'p_purchase_id': purchaseId},
+      );
     } on PostgrestException catch (error) {
       AppLogger.error('Purchase cancel failed', error);
       throw AppException(AppError.messageOf(error), cause: error);

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:business_management_app/core/utils/formatters.dart';
 import 'package:business_management_app/models/company.dart';
+import 'package:business_management_app/models/dashboard.dart';
 import 'package:business_management_app/models/product.dart';
 import 'package:business_management_app/models/purchase.dart';
 import 'package:business_management_app/models/sale.dart';
@@ -192,5 +193,76 @@ void main() {
 
     expect(movement.quantity, -3);
     expect(movement.typeLabel, 'Sale');
+  });
+
+  test('DashboardData.fromJson maps summary, activity, inventory, trend', () {
+    final data = DashboardData.fromJson({
+      'date_from': '2026-09-01',
+      'date_to': '2026-09-05',
+      'summary': {
+        'sales_total': '100.00',
+        'purchases_total': 50,
+        'revenue': 100,
+        'total_cogs': '40.5',
+        'total_profit': 59.5,
+        'sales_count': 2,
+        'purchases_count': 1,
+      },
+      'recent_sales': [
+        {
+          'id': 's1',
+          'invoice_number': 'S-1',
+          'company_name': 'Acme',
+          'total_amount': 100,
+          'total_profit': 59.5,
+          'sale_date': '2026-09-05',
+        },
+      ],
+      'recent_purchases': [
+        {
+          'id': 'p1',
+          'invoice_number': 'P-1',
+          'company_name': 'Acme',
+          'total_amount': 50,
+          'purchase_date': '2026-09-02',
+        },
+      ],
+      'inventory': {
+        'total_products': 3,
+        'low_stock_count': 1,
+        'out_of_stock_count': 0,
+      },
+      'low_stock': [
+        {
+          'product_id': 'pr1',
+          'product_name': 'Rice',
+          'sku': 'R1',
+          'current_stock': 2,
+          'reorder_level': 5,
+          'company_name': 'Acme',
+        },
+      ],
+      'trend': [
+        {
+          'day': '2026-09-05',
+          'sales_total': 100,
+          'profit_total': 59.5,
+          'sales_count': 1,
+        },
+      ],
+    });
+
+    expect(data.summary.salesTotal, 100);
+    expect(data.summary.purchasesTotal, 50);
+    expect(data.summary.revenue, 100);
+    expect(data.summary.totalCogs, 40.5);
+    expect(data.summary.totalProfit, 59.5);
+    expect(data.summary.salesCount, 2);
+    expect(data.summary.purchasesCount, 1);
+    expect(data.recentSales.single.invoiceNumber, 'S-1');
+    expect(data.recentPurchases.single.totalAmount, 50);
+    expect(data.inventory.lowStockCount, 1);
+    expect(data.lowStock.single.reorderLevel, 5);
+    expect(data.trend.single.salesTotal, 100);
   });
 }

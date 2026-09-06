@@ -157,10 +157,7 @@ class _StockScreenState extends State<StockScreen> {
                   items: [
                     const DropdownMenuItem(value: null, child: Text('All')),
                     for (final category in _categories)
-                      DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      ),
+                      DropdownMenuItem(value: category, child: Text(category)),
                   ],
                   onChanged: _controller.setCategoryFilter,
                 ),
@@ -267,17 +264,11 @@ class _StockScreenState extends State<StockScreen> {
                     ),
                   ),
                   if (item.isLowStock)
-                    const AppBadge(
-                      label: 'Low',
-                      type: AppBadgeType.warning,
-                    ),
+                    const AppBadge(label: 'Low', type: AppBadgeType.warning),
                 ],
               ),
               const SizedBox(height: 6),
-              Text(
-                item.companyName ?? '—',
-                style: AppTextStyles.bodySmall,
-              ),
+              Text(item.companyName ?? '—', style: AppTextStyles.bodySmall),
               if (item.sku?.isNotEmpty == true)
                 Text('SKU ${item.sku}', style: AppTextStyles.bodySmall),
               const SizedBox(height: 8),

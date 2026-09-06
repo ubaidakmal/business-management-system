@@ -78,14 +78,14 @@ class StockMovement {
   final DateTime? createdAt;
 
   String get typeLabel => switch (movementType) {
-        'purchase' => 'Purchase',
-        'sale' => 'Sale',
-        'purchase_reversal' => 'Purchase reversal',
-        'sale_reversal' => 'Sale reversal',
-        'adjustment_in' => 'Adjustment in',
-        'adjustment_out' => 'Adjustment out',
-        _ => movementType,
-      };
+    'purchase' => 'Purchase',
+    'sale' => 'Sale',
+    'purchase_reversal' => 'Purchase reversal',
+    'sale_reversal' => 'Sale reversal',
+    'adjustment_in' => 'Adjustment in',
+    'adjustment_out' => 'Adjustment out',
+    _ => movementType,
+  };
 
   factory StockMovement.fromJson(Map<String, dynamic> json) {
     return StockMovement(

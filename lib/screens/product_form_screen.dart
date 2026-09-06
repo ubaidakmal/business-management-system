@@ -82,8 +82,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         _openingUnitCost.text = product.openingUnitCost.toStringAsFixed(2);
         _reorderLevel.text = product.reorderLevel.toString();
         _isActive = product.isActive;
-        _openingStockLocked =
-            await _stockService.hasMovements(product.id);
+        _openingStockLocked = await _stockService.hasMovements(product.id);
 
         // Keep selected company visible even if inactive.
         if (!_companies.any((c) => c.id == product.companyId)) {

@@ -61,9 +61,9 @@ class _StockAdjustmentScreenState extends State<StockAdjustmentScreen> {
       _products = await _service.listBalances(isActive: true);
       if (_productId != null) {
         _selected = _products.cast<StockBalance?>().firstWhere(
-              (p) => p?.productId == _productId,
-              orElse: () => null,
-            );
+          (p) => p?.productId == _productId,
+          orElse: () => null,
+        );
         if (_selected == null) {
           _selected = await _service.getBalance(_productId!);
           _products = [..._products, _selected!];
@@ -161,7 +161,9 @@ class _StockAdjustmentScreenState extends State<StockAdjustmentScreen> {
                           onChanged: (value) {
                             setState(() {
                               _productId = value;
-                              _selected = _products.cast<StockBalance?>().firstWhere(
+                              _selected = _products
+                                  .cast<StockBalance?>()
+                                  .firstWhere(
                                     (p) => p?.productId == value,
                                     orElse: () => null,
                                   );
@@ -259,8 +261,9 @@ class _StockAdjustmentScreenState extends State<StockAdjustmentScreen> {
                             AppOutlinedButton(
                               label: 'Cancel',
                               expanded: false,
-                              onPressed:
-                                  _saving ? null : () => Navigator.pop(context),
+                              onPressed: _saving
+                                  ? null
+                                  : () => Navigator.pop(context),
                             ),
                             AppButton(
                               label: 'Save adjustment',
@@ -286,7 +289,11 @@ class _StockAdjustmentScreenState extends State<StockAdjustmentScreen> {
   }) {
     if (!desktop) {
       return Column(
-        children: [left, const SizedBox(height: AppSizes.md), right],
+        children: [
+          left,
+          const SizedBox(height: AppSizes.md),
+          right,
+        ],
       );
     }
     return Row(

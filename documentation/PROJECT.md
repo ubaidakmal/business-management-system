@@ -6,7 +6,7 @@ Living project document. Update this file whenever a phase or meaningful change 
 
 Internal ERP-style app for companies, products, purchases, sales, stock, costing, profit, and reports.
 
-Current phase: **Phase 7 — Transaction & Profit Engine (FIFO).** Reports/PDF remain later.
+Current phase: **Phase 8 — Dashboard.** Reports/PDF remain later.
 
 ## Stack
 
@@ -53,6 +53,14 @@ Stored on `sale_items` / `sales` by the database (not Flutter).
 
 `products.opening_unit_cost` seeds the opening FIFO layer. Locked after stock movements exist.
 
+## Dashboard (Phase 8)
+
+Single RPC `get_dashboard_data(date_from, date_to, company_id?)` returns summary KPIs, recent sales/purchases, inventory counts + low-stock list, and a daily sales/profit trend.
+
+- Filters: Today / This week / This month / Custom range; optional company
+- Financial values from PostgreSQL completed transactions only (COGS/profit from Phase 7 columns)
+- Stock summary from `product_stock_balances` (`reorder_level` / `is_low_stock`)
+
 ## Routing
 
 Protected: dashboard, companies, products, purchases, sales, stock, settings.  
@@ -74,6 +82,12 @@ flutter run
 Test admin: `admin@bms.app` / `Password123!`
 
 ## Changelog
+
+### 2026-09-06 — Phase 8 Dashboard
+
+- Real dashboard via `get_dashboard_data` RPC
+- KPI cards, recent activity, inventory summary, CustomPaint trend chart
+- Date presets + company filter + refresh / error states
 
 ### 2026-09-06 — Phase 7 FIFO / COGS / Profit
 

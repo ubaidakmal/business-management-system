@@ -2,7 +2,8 @@
 
 Flutter + Supabase ERP app.
 
-Living notes: [documentation/PROJECT.md](documentation/PROJECT.md)
+Living notes: [documentation/PROJECT.md](documentation/PROJECT.md)  
+Manual test steps (all phases): [documentation/TESTING.md](documentation/TESTING.md)
 
 ## Run
 
@@ -18,12 +19,13 @@ Android Studio: press Play. Supabase keys are in `lib/config/app_config.dart`.
 - Email: `admin@bms.app`
 - Password: `Password123!`
 
-## Phase 3–7
+## Phase 3–8
 
-After login: **Companies**, **Products**, **Purchases**, **Sales**, and **Stock**.
+After login: **Dashboard**, **Companies**, **Products**, **Purchases**, **Sales**, and **Stock**.
 
+- Dashboard: date range + company filters; KPIs, recent activity, inventory, sales/profit trend (DB aggregates)
 - Stock = opening stock + movements
-- Completed sales use **FIFO** for COGS and profit (shown on sale details)
+- Completed sales use **FIFO** for COGS and profit (shown on sale details and dashboard)
 
 Reports / PDF export come later.
 

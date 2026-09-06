@@ -135,7 +135,8 @@ class _SalesScreenState extends State<SalesScreen> {
         children: [
           AppSectionHeader(
             title: 'Sales',
-            subtitle: 'Record sales to customers/companies. Stock updates come later.',
+            subtitle:
+                'Record sales to customers/companies. Stock updates come later.',
             action: AppButton(
               label: 'Add Sale',
               expanded: false,
@@ -313,10 +314,7 @@ class _SalesScreenState extends State<SalesScreen> {
                       style: AppTextStyles.headingSmall,
                     ),
                   ),
-                  AppBadge(
-                    label: sale.status,
-                    type: _statusType(sale.status),
-                  ),
+                  AppBadge(label: sale.status, type: _statusType(sale.status)),
                 ],
               ),
               const SizedBox(height: 6),

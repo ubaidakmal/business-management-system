@@ -39,9 +39,7 @@ class StockService {
       }
 
       final rows =
-          await builder
-                  .order('product_name', ascending: true)
-              as List<dynamic>;
+          await builder.order('product_name', ascending: true) as List<dynamic>;
       return rows
           .cast<Map<String, dynamic>>()
           .map(StockBalance.fromJson)

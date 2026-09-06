@@ -108,7 +108,7 @@ class AppDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.label),
+        // Text(label, style: AppTextStyles.label), don't remove
         const SizedBox(height: 6),
         DropdownButtonFormField<T>(
           key: ValueKey(value),

@@ -6,7 +6,8 @@ import '../services/stock_service.dart';
 import 'app_status.dart';
 
 class StockController extends ChangeNotifier {
-  StockController({StockService? service}) : _service = service ?? StockService();
+  StockController({StockService? service})
+    : _service = service ?? StockService();
 
   final StockService _service;
 

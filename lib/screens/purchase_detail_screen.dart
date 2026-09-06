@@ -99,218 +99,197 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? AppErrorState(message: _error!, onRetry: _load)
-              : purchase == null
-                  ? const AppEmptyState(
-                      title: 'Purchase not found',
-                      message: 'This purchase may have been removed.',
-                    )
-                  : ListView(
-                      children: [
-                        AppSectionHeader(
-                          title: purchase.invoiceNumber?.isNotEmpty == true
-                              ? 'Invoice ${purchase.invoiceNumber}'
-                              : 'Purchase',
-                          subtitle:
-                              'Historical purchase transaction. Stock is not updated in this phase.',
-                          action: Wrap(
-                            spacing: AppSizes.sm,
-                            children: [
-                              if (purchase.canEdit)
-                                AppOutlinedButton(
-                                  label: 'Edit',
-                                  expanded: false,
-                                  onPressed: _busy ? null : _edit,
-                                ),
-                              if (purchase.canCancel)
-                                AppOutlinedButton(
-                                  label: 'Cancel',
-                                  expanded: false,
-                                  onPressed: _busy ? null : _cancel,
-                                ),
-                            ],
-                          ),
+          ? AppErrorState(message: _error!, onRetry: _load)
+          : purchase == null
+          ? const AppEmptyState(
+              title: 'Purchase not found',
+              message: 'This purchase may have been removed.',
+            )
+          : ListView(
+              children: [
+                AppSectionHeader(
+                  title: purchase.invoiceNumber?.isNotEmpty == true
+                      ? 'Invoice ${purchase.invoiceNumber}'
+                      : 'Purchase',
+                  subtitle:
+                      'Historical purchase transaction. Stock is not updated in this phase.',
+                  action: Wrap(
+                    spacing: AppSizes.sm,
+                    children: [
+                      if (purchase.canEdit)
+                        AppOutlinedButton(
+                          label: 'Edit',
+                          expanded: false,
+                          onPressed: _busy ? null : _edit,
                         ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Purchase information',
-                                    style: AppTextStyles.headingSmall,
-                                  ),
-                                  const Spacer(),
-                                  AppBadge(
-                                    label: purchase.status,
-                                    type: switch (purchase.status) {
-                                      'completed' => AppBadgeType.success,
-                                      'draft' => AppBadgeType.info,
-                                      'cancelled' => AppBadgeType.neutral,
-                                      _ => AppBadgeType.neutral,
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSizes.md),
-                              AppDetailRow(
-                                label: 'Company',
-                                value: purchase.companyName ?? '—',
-                              ),
-                              AppDetailRow(
-                                label: 'Date',
-                                value: Formatters.date(purchase.purchaseDate),
-                              ),
-                              AppDetailRow(
-                                label: 'Invoice',
-                                value: purchase.invoiceNumber?.isNotEmpty == true
-                                    ? purchase.invoiceNumber!
-                                    : '—',
-                              ),
-                              AppDetailRow(
-                                label: 'Reference',
-                                value:
-                                    purchase.referenceNumber?.isNotEmpty == true
-                                        ? purchase.referenceNumber!
-                                        : '—',
-                              ),
-                            ],
-                          ),
+                      if (purchase.canCancel)
+                        AppOutlinedButton(
+                          label: 'Cancel',
+                          expanded: false,
+                          onPressed: _busy ? null : _cancel,
                         ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                'Purchase items',
-                                style: AppTextStyles.headingSmall,
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Purchase information',
+                            style: AppTextStyles.headingSmall,
+                          ),
+                          const Spacer(),
+                          AppBadge(
+                            label: purchase.status,
+                            type: switch (purchase.status) {
+                              'completed' => AppBadgeType.success,
+                              'draft' => AppBadgeType.info,
+                              'cancelled' => AppBadgeType.neutral,
+                              _ => AppBadgeType.neutral,
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSizes.md),
+                      AppDetailRow(
+                        label: 'Company',
+                        value: purchase.companyName ?? '—',
+                      ),
+                      AppDetailRow(
+                        label: 'Date',
+                        value: Formatters.date(purchase.purchaseDate),
+                      ),
+                      AppDetailRow(
+                        label: 'Invoice',
+                        value: purchase.invoiceNumber?.isNotEmpty == true
+                            ? purchase.invoiceNumber!
+                            : '—',
+                      ),
+                      AppDetailRow(
+                        label: 'Reference',
+                        value: purchase.referenceNumber?.isNotEmpty == true
+                            ? purchase.referenceNumber!
+                            : '—',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Purchase items', style: AppTextStyles.headingSmall),
+                      const SizedBox(height: AppSizes.md),
+                      if (purchase.items.isEmpty)
+                        Text(
+                          'No items on this purchase.',
+                          style: AppTextStyles.bodySmall,
+                        )
+                      else
+                        for (final item in purchase.items)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSizes.md),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.border),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radius,
+                                ),
                               ),
-                              const SizedBox(height: AppSizes.md),
-                              if (purchase.items.isEmpty)
-                                Text(
-                                  'No items on this purchase.',
-                                  style: AppTextStyles.bodySmall,
-                                )
-                              else
-                                for (final item in purchase.items)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: AppSizes.md,
+                              child: Padding(
+                                padding: const EdgeInsets.all(AppSizes.md),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.productName ?? 'Product',
+                                      style: AppTextStyles.bodyMedium,
                                     ),
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.border,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppSizes.radius,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(
-                                          AppSizes.md,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.productName ?? 'Product',
-                                              style: AppTextStyles.bodyMedium,
-                                            ),
-                                            Text(
-                                              [
-                                                if (item.productSku
-                                                        ?.isNotEmpty ==
-                                                    true)
-                                                  'SKU ${item.productSku}',
-                                                if (item.productUnit
-                                                        ?.isNotEmpty ==
-                                                    true)
-                                                  item.productUnit!,
-                                              ].join(' · '),
-                                              style: AppTextStyles.bodySmall,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Wrap(
-                                              spacing: 16,
-                                              runSpacing: 4,
-                                              children: [
-                                                Text(
-                                                  'Qty ${Formatters.quantity(item.quantity)}',
-                                                ),
-                                                Text(
-                                                  'Cost ${Formatters.money(item.unitCost)}',
-                                                ),
-                                                Text(
-                                                  'Line ${Formatters.money(item.lineTotal)}',
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                    Text(
+                                      [
+                                        if (item.productSku?.isNotEmpty == true)
+                                          'SKU ${item.productSku}',
+                                        if (item.productUnit?.isNotEmpty ==
+                                            true)
+                                          item.productUnit!,
+                                      ].join(' · '),
+                                      style: AppTextStyles.bodySmall,
                                     ),
-                                  ),
-                            ],
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 16,
+                                      runSpacing: 4,
+                                      children: [
+                                        Text(
+                                          'Qty ${Formatters.quantity(item.quantity)}',
+                                        ),
+                                        Text(
+                                          'Cost ${Formatters.money(item.unitCost)}',
+                                        ),
+                                        Text(
+                                          'Line ${Formatters.money(item.lineTotal)}',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text('Summary', style: AppTextStyles.headingSmall),
-                              const SizedBox(height: AppSizes.md),
-                              AppDetailRow(
-                                label: 'Subtotal',
-                                value: Formatters.money(purchase.subtotal),
-                              ),
-                              AppDetailRow(
-                                label: 'Discount',
-                                value: Formatters.money(purchase.discount),
-                              ),
-                              AppDetailRow(
-                                label: 'Other charges',
-                                value: Formatters.money(purchase.otherCharges),
-                              ),
-                              AppDetailRow(
-                                label: 'Total',
-                                value: Formatters.money(purchase.totalAmount),
-                              ),
-                              if (purchase.notes?.isNotEmpty == true) ...[
-                                const SizedBox(height: AppSizes.md),
-                                Text('Notes', style: AppTextStyles.label),
-                                const SizedBox(height: 4),
-                                Text(
-                                  purchase.notes!,
-                                  style: AppTextStyles.bodyMedium,
-                                ),
-                              ],
-                              if (purchase.createdAt != null) ...[
-                                const SizedBox(height: AppSizes.md),
-                                AppDetailRow(
-                                  label: 'Created',
-                                  value: Formatters.dateTime(
-                                    purchase.createdAt!,
-                                  ),
-                                ),
-                              ],
-                              if (purchase.updatedAt != null)
-                                AppDetailRow(
-                                  label: 'Updated',
-                                  value: Formatters.dateTime(
-                                    purchase.updatedAt!,
-                                  ),
-                                ),
-                            ],
-                          ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Summary', style: AppTextStyles.headingSmall),
+                      const SizedBox(height: AppSizes.md),
+                      AppDetailRow(
+                        label: 'Subtotal',
+                        value: Formatters.money(purchase.subtotal),
+                      ),
+                      AppDetailRow(
+                        label: 'Discount',
+                        value: Formatters.money(purchase.discount),
+                      ),
+                      AppDetailRow(
+                        label: 'Other charges',
+                        value: Formatters.money(purchase.otherCharges),
+                      ),
+                      AppDetailRow(
+                        label: 'Total',
+                        value: Formatters.money(purchase.totalAmount),
+                      ),
+                      if (purchase.notes?.isNotEmpty == true) ...[
+                        const SizedBox(height: AppSizes.md),
+                        Text('Notes', style: AppTextStyles.label),
+                        const SizedBox(height: 4),
+                        Text(purchase.notes!, style: AppTextStyles.bodyMedium),
+                      ],
+                      if (purchase.createdAt != null) ...[
+                        const SizedBox(height: AppSizes.md),
+                        AppDetailRow(
+                          label: 'Created',
+                          value: Formatters.dateTime(purchase.createdAt!),
                         ),
                       ],
-                    ),
+                      if (purchase.updatedAt != null)
+                        AppDetailRow(
+                          label: 'Updated',
+                          value: Formatters.dateTime(purchase.updatedAt!),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

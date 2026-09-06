@@ -68,23 +68,26 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
 
   bool get _isEditing => widget.saleId != null;
 
-  double get _subtotal =>
-      SaleMath.subtotal(_items.map((item) => SaleItem(
-            productId: item.product.id,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            lineTotal: item.lineTotal,
-          )));
+  double get _subtotal => SaleMath.subtotal(
+    _items.map(
+      (item) => SaleItem(
+        productId: item.product.id,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        lineTotal: item.lineTotal,
+      ),
+    ),
+  );
 
   double get _discountValue => double.tryParse(_discount.text.trim()) ?? 0;
   double get _otherChargesValue =>
       double.tryParse(_otherCharges.text.trim()) ?? 0;
 
   double get _grandTotal => SaleMath.grandTotal(
-        subtotal: _subtotal,
-        discount: _discountValue,
-        otherCharges: _otherChargesValue,
-      );
+    subtotal: _subtotal,
+    discount: _discountValue,
+    otherCharges: _otherChargesValue,
+  );
 
   @override
   void initState() {
@@ -123,7 +126,8 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
 
         await _loadProducts(sale.companyId);
         for (final item in sale.items) {
-          final product = _products.cast<Product?>().firstWhere(
+          final product =
+              _products.cast<Product?>().firstWhere(
                 (p) => p?.id == item.productId,
                 orElse: () => null,
               ) ??
@@ -243,8 +247,8 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
                           if (value == null) return;
                           setLocal(() {
                             selected = value;
-                            costController.text =
-                                value.salePrice.toStringAsFixed(2);
+                            costController.text = value.salePrice
+                                .toStringAsFixed(2);
                           });
                         },
                       ),
@@ -294,16 +298,15 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
 
     final quantity = double.parse(qtyController.text.trim());
     final unitPrice = double.parse(costController.text.trim());
-    final existingIndex =
-        _items.indexWhere((item) => item.product.id == selected!.id);
+    final existingIndex = _items.indexWhere(
+      (item) => item.product.id == selected!.id,
+    );
     var merged = false;
 
     setState(() {
       if (existingIndex >= 0) {
         final existing = _items[existingIndex];
-        existing.quantity = SaleMath.roundMoney(
-          existing.quantity + quantity,
-        );
+        existing.quantity = SaleMath.roundMoney(existing.quantity + quantity);
         existing.unitPrice = unitPrice;
         merged = true;
       } else {
@@ -327,10 +330,10 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
   }
 
   Future<void> _editItem(_DraftItem item) async {
-    final qtyController =
-        TextEditingController(text: item.quantity.toString());
-    final costController =
-        TextEditingController(text: item.unitPrice.toStringAsFixed(2));
+    final qtyController = TextEditingController(text: item.quantity.toString());
+    final costController = TextEditingController(
+      text: item.unitPrice.toStringAsFixed(2),
+    );
     final formKey = GlobalKey<FormState>();
 
     final confirmed = await showDialog<bool>(
@@ -346,16 +349,18 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
                 AppTextField(
                   label: 'Quantity',
                   controller: qtyController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   validator: Validators.positiveNumber,
                 ),
                 const SizedBox(height: AppSizes.md),
                 AppTextField(
                   label: 'Unit price',
                   controller: costController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   validator: (value) =>
                       Validators.nonNegativeNumber(value, 'Unit price'),
                 ),
@@ -493,8 +498,10 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('Sale information',
-                            style: AppTextStyles.headingSmall),
+                        Text(
+                          'Sale information',
+                          style: AppTextStyles.headingSmall,
+                        ),
                         const SizedBox(height: AppSizes.md),
                         AppDropdown<String>(
                           label: 'Company',
@@ -601,21 +608,17 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
                           left: AppTextField(
                             label: 'Discount',
                             controller: _discount,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
+                            keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
                             onChanged: (_) => setState(() {}),
-                            validator: (value) => Validators.nonNegativeNumber(
-                              value,
-                              'Discount',
-                            ),
+                            validator: (value) =>
+                                Validators.nonNegativeNumber(value, 'Discount'),
                           ),
                           right: AppTextField(
                             label: 'Other charges',
                             controller: _otherCharges,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
+                            keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
                             onChanged: (_) => setState(() {}),
@@ -655,8 +658,9 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
                             AppOutlinedButton(
                               label: 'Cancel',
                               expanded: false,
-                              onPressed:
-                                  _saving ? null : () => Navigator.pop(context),
+                              onPressed: _saving
+                                  ? null
+                                  : () => Navigator.pop(context),
                             ),
                             AppOutlinedButton(
                               label: 'Save draft',
@@ -755,7 +759,11 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
   }) {
     if (!desktop) {
       return Column(
-        children: [left, const SizedBox(height: AppSizes.md), right],
+        children: [
+          left,
+          const SizedBox(height: AppSizes.md),
+          right,
+        ],
       );
     }
     return Row(

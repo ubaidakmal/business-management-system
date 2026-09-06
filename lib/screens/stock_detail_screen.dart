@@ -77,173 +77,159 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? AppErrorState(message: _error!, onRetry: _load)
-              : balance == null
-                  ? const AppEmptyState(
-                      title: 'Not found',
-                      message: 'This product stock record was not found.',
-                    )
-                  : ListView(
-                      children: [
-                        AppSectionHeader(
-                          title: balance.productName,
-                          subtitle: balance.companyName,
-                          action: isAdmin
-                              ? AppOutlinedButton(
-                                  label: 'Adjust',
-                                  expanded: false,
-                                  onPressed: _adjust,
-                                )
-                              : null,
-                        ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Stock summary',
-                                    style: AppTextStyles.headingSmall,
-                                  ),
-                                  const Spacer(),
-                                  if (balance.isLowStock)
-                                    const AppBadge(
-                                      label: 'Low stock',
-                                      type: AppBadgeType.warning,
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSizes.md),
-                              AppDetailRow(
-                                label: 'SKU',
-                                value: balance.sku?.isNotEmpty == true
-                                    ? balance.sku!
-                                    : '—',
-                              ),
-                              AppDetailRow(
-                                label: 'Unit',
-                                value: balance.unit?.isNotEmpty == true
-                                    ? balance.unit!
-                                    : '—',
-                              ),
-                              AppDetailRow(
-                                label: 'Opening stock',
-                                value: Formatters.quantity(balance.openingStock),
-                              ),
-                              AppDetailRow(
-                                label: 'Movements',
-                                value: Formatters.quantity(balance.movementQty),
-                              ),
-                              AppDetailRow(
-                                label: 'Current stock',
-                                value: Formatters.quantity(balance.currentStock),
-                              ),
-                              AppDetailRow(
-                                label: 'Reorder level',
-                                value: Formatters.quantity(balance.reorderLevel),
-                              ),
-                            ],
+          ? AppErrorState(message: _error!, onRetry: _load)
+          : balance == null
+          ? const AppEmptyState(
+              title: 'Not found',
+              message: 'This product stock record was not found.',
+            )
+          : ListView(
+              children: [
+                AppSectionHeader(
+                  title: balance.productName,
+                  subtitle: balance.companyName,
+                  action: isAdmin
+                      ? AppOutlinedButton(
+                          label: 'Adjust',
+                          expanded: false,
+                          onPressed: _adjust,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Stock summary',
+                            style: AppTextStyles.headingSmall,
                           ),
-                        ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                'Movement history',
-                                style: AppTextStyles.headingSmall,
+                          const Spacer(),
+                          if (balance.isLowStock)
+                            const AppBadge(
+                              label: 'Low stock',
+                              type: AppBadgeType.warning,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSizes.md),
+                      AppDetailRow(
+                        label: 'SKU',
+                        value: balance.sku?.isNotEmpty == true
+                            ? balance.sku!
+                            : '—',
+                      ),
+                      AppDetailRow(
+                        label: 'Unit',
+                        value: balance.unit?.isNotEmpty == true
+                            ? balance.unit!
+                            : '—',
+                      ),
+                      AppDetailRow(
+                        label: 'Opening stock',
+                        value: Formatters.quantity(balance.openingStock),
+                      ),
+                      AppDetailRow(
+                        label: 'Movements',
+                        value: Formatters.quantity(balance.movementQty),
+                      ),
+                      AppDetailRow(
+                        label: 'Current stock',
+                        value: Formatters.quantity(balance.currentStock),
+                      ),
+                      AppDetailRow(
+                        label: 'Reorder level',
+                        value: Formatters.quantity(balance.reorderLevel),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Movement history',
+                        style: AppTextStyles.headingSmall,
+                      ),
+                      const SizedBox(height: AppSizes.md),
+                      if (_movements.isEmpty)
+                        Text(
+                          'No movements yet.',
+                          style: AppTextStyles.bodySmall,
+                        )
+                      else
+                        for (final movement in _movements)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSizes.md),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.border),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radius,
+                                ),
                               ),
-                              const SizedBox(height: AppSizes.md),
-                              if (_movements.isEmpty)
-                                Text(
-                                  'No movements yet.',
-                                  style: AppTextStyles.bodySmall,
-                                )
-                              else
-                                for (final movement in _movements)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: AppSizes.md,
+                              child: Padding(
+                                padding: const EdgeInsets.all(AppSizes.md),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            movement.typeLabel,
+                                            style: AppTextStyles.bodyMedium,
+                                          ),
+                                        ),
+                                        Text(
+                                          Formatters.quantity(
+                                            movement.quantity,
+                                          ),
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                color: movement.quantity < 0
+                                                    ? AppColors.error
+                                                    : AppColors.success,
+                                              ),
+                                        ),
+                                      ],
                                     ),
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.border,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppSizes.radius,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(
-                                          AppSizes.md,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    movement.typeLabel,
-                                                    style: AppTextStyles
-                                                        .bodyMedium,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  Formatters.quantity(
-                                                    movement.quantity,
-                                                  ),
-                                                  style: AppTextStyles
-                                                      .bodyMedium
-                                                      .copyWith(
-                                                    color: movement.quantity < 0
-                                                        ? AppColors.error
-                                                        : AppColors.success,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              Formatters.dateTime(
-                                                movement.createdAt,
-                                              ),
-                                              style: AppTextStyles.bodySmall,
-                                            ),
-                                            if (movement.referenceType != null)
-                                              Text(
-                                                'Ref ${movement.referenceType}'
-                                                '${movement.referenceId == null ? '' : ' · ${movement.referenceId!.substring(0, 8)}'}',
-                                                style: AppTextStyles.bodySmall,
-                                              ),
-                                            if (movement.reason
-                                                    ?.isNotEmpty ==
-                                                true)
-                                              Text(
-                                                movement.reason!,
-                                                style: AppTextStyles.bodySmall,
-                                              ),
-                                            if (movement.notes?.isNotEmpty ==
-                                                true)
-                                              Text(
-                                                movement.notes!,
-                                                style: AppTextStyles.bodySmall,
-                                              ),
-                                          ],
-                                        ),
-                                      ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      Formatters.dateTime(movement.createdAt),
+                                      style: AppTextStyles.bodySmall,
                                     ),
-                                  ),
-                            ],
+                                    if (movement.referenceType != null)
+                                      Text(
+                                        'Ref ${movement.referenceType}'
+                                        '${movement.referenceId == null ? '' : ' · ${movement.referenceId!.substring(0, 8)}'}',
+                                        style: AppTextStyles.bodySmall,
+                                      ),
+                                    if (movement.reason?.isNotEmpty == true)
+                                      Text(
+                                        movement.reason!,
+                                        style: AppTextStyles.bodySmall,
+                                      ),
+                                    if (movement.notes?.isNotEmpty == true)
+                                      Text(
+                                        movement.notes!,
+                                        style: AppTextStyles.bodySmall,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

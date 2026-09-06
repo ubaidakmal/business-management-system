@@ -135,7 +135,8 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
         children: [
           AppSectionHeader(
             title: 'Purchases',
-            subtitle: 'Record purchases from companies. Stock updates come later.',
+            subtitle:
+                'Record purchases from companies. Stock updates come later.',
             action: AppButton(
               label: 'Add Purchase',
               expanded: false,

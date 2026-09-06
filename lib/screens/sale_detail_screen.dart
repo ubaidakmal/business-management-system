@@ -99,236 +99,215 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? AppErrorState(message: _error!, onRetry: _load)
-              : sale == null
-                  ? const AppEmptyState(
-                      title: 'Sale not found',
-                      message: 'This sale may have been removed.',
-                    )
-                  : ListView(
-                      children: [
-                        AppSectionHeader(
-                          title: sale.invoiceNumber?.isNotEmpty == true
-                              ? 'Invoice ${sale.invoiceNumber}'
-                              : 'Sale',
-                          subtitle:
-                              'Historical sale. Completed sales include FIFO COGS and profit.',
-                          action: Wrap(
-                            spacing: AppSizes.sm,
-                            children: [
-                              if (sale.canEdit)
-                                AppOutlinedButton(
-                                  label: 'Edit',
-                                  expanded: false,
-                                  onPressed: _busy ? null : _edit,
-                                ),
-                              if (sale.canCancel)
-                                AppOutlinedButton(
-                                  label: 'Cancel',
-                                  expanded: false,
-                                  onPressed: _busy ? null : _cancel,
-                                ),
-                            ],
-                          ),
+          ? AppErrorState(message: _error!, onRetry: _load)
+          : sale == null
+          ? const AppEmptyState(
+              title: 'Sale not found',
+              message: 'This sale may have been removed.',
+            )
+          : ListView(
+              children: [
+                AppSectionHeader(
+                  title: sale.invoiceNumber?.isNotEmpty == true
+                      ? 'Invoice ${sale.invoiceNumber}'
+                      : 'Sale',
+                  subtitle:
+                      'Historical sale. Completed sales include FIFO COGS and profit.',
+                  action: Wrap(
+                    spacing: AppSizes.sm,
+                    children: [
+                      if (sale.canEdit)
+                        AppOutlinedButton(
+                          label: 'Edit',
+                          expanded: false,
+                          onPressed: _busy ? null : _edit,
                         ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Sale information',
-                                    style: AppTextStyles.headingSmall,
-                                  ),
-                                  const Spacer(),
-                                  AppBadge(
-                                    label: sale.status,
-                                    type: switch (sale.status) {
-                                      'completed' => AppBadgeType.success,
-                                      'draft' => AppBadgeType.info,
-                                      'cancelled' => AppBadgeType.neutral,
-                                      _ => AppBadgeType.neutral,
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppSizes.md),
-                              AppDetailRow(
-                                label: 'Company',
-                                value: sale.companyName ?? '—',
-                              ),
-                              AppDetailRow(
-                                label: 'Date',
-                                value: Formatters.date(sale.saleDate),
-                              ),
-                              AppDetailRow(
-                                label: 'Invoice',
-                                value: sale.invoiceNumber?.isNotEmpty == true
-                                    ? sale.invoiceNumber!
-                                    : '—',
-                              ),
-                              AppDetailRow(
-                                label: 'Reference',
-                                value:
-                                    sale.referenceNumber?.isNotEmpty == true
-                                        ? sale.referenceNumber!
-                                        : '—',
-                              ),
-                            ],
-                          ),
+                      if (sale.canCancel)
+                        AppOutlinedButton(
+                          label: 'Cancel',
+                          expanded: false,
+                          onPressed: _busy ? null : _cancel,
                         ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                'Sale items',
-                                style: AppTextStyles.headingSmall,
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Sale information',
+                            style: AppTextStyles.headingSmall,
+                          ),
+                          const Spacer(),
+                          AppBadge(
+                            label: sale.status,
+                            type: switch (sale.status) {
+                              'completed' => AppBadgeType.success,
+                              'draft' => AppBadgeType.info,
+                              'cancelled' => AppBadgeType.neutral,
+                              _ => AppBadgeType.neutral,
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSizes.md),
+                      AppDetailRow(
+                        label: 'Company',
+                        value: sale.companyName ?? '—',
+                      ),
+                      AppDetailRow(
+                        label: 'Date',
+                        value: Formatters.date(sale.saleDate),
+                      ),
+                      AppDetailRow(
+                        label: 'Invoice',
+                        value: sale.invoiceNumber?.isNotEmpty == true
+                            ? sale.invoiceNumber!
+                            : '—',
+                      ),
+                      AppDetailRow(
+                        label: 'Reference',
+                        value: sale.referenceNumber?.isNotEmpty == true
+                            ? sale.referenceNumber!
+                            : '—',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Sale items', style: AppTextStyles.headingSmall),
+                      const SizedBox(height: AppSizes.md),
+                      if (sale.items.isEmpty)
+                        Text(
+                          'No items on this sale.',
+                          style: AppTextStyles.bodySmall,
+                        )
+                      else
+                        for (final item in sale.items)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: AppSizes.md),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.border),
+                                borderRadius: BorderRadius.circular(
+                                  AppSizes.radius,
+                                ),
                               ),
-                              const SizedBox(height: AppSizes.md),
-                              if (sale.items.isEmpty)
-                                Text(
-                                  'No items on this sale.',
-                                  style: AppTextStyles.bodySmall,
-                                )
-                              else
-                                for (final item in sale.items)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: AppSizes.md,
+                              child: Padding(
+                                padding: const EdgeInsets.all(AppSizes.md),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.productName ?? 'Product',
+                                      style: AppTextStyles.bodyMedium,
                                     ),
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.border,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppSizes.radius,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(
-                                          AppSizes.md,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item.productName ?? 'Product',
-                                              style: AppTextStyles.bodyMedium,
-                                            ),
-                                            Text(
-                                              [
-                                                if (item.productSku
-                                                        ?.isNotEmpty ==
-                                                    true)
-                                                  'SKU ${item.productSku}',
-                                                if (item.productUnit
-                                                        ?.isNotEmpty ==
-                                                    true)
-                                                  item.productUnit!,
-                                              ].join(' · '),
-                                              style: AppTextStyles.bodySmall,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Wrap(
-                                              spacing: 16,
-                                              runSpacing: 4,
-                                              children: [
-                                                Text(
-                                                  'Qty ${Formatters.quantity(item.quantity)}',
-                                                ),
-                                                Text(
-                                                  'Price ${Formatters.money(item.unitPrice)}',
-                                                ),
-                                                Text(
-                                                  'Revenue ${Formatters.money(item.revenue)}',
-                                                ),
-                                                if (sale.showsCosting) ...[
-                                                  Text(
-                                                    'COGS ${Formatters.money(item.cogs)}',
-                                                  ),
-                                                  Text(
-                                                    'Profit ${Formatters.money(item.lineProfit)}',
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                    Text(
+                                      [
+                                        if (item.productSku?.isNotEmpty == true)
+                                          'SKU ${item.productSku}',
+                                        if (item.productUnit?.isNotEmpty ==
+                                            true)
+                                          item.productUnit!,
+                                      ].join(' · '),
+                                      style: AppTextStyles.bodySmall,
                                     ),
-                                  ),
-                            ],
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 16,
+                                      runSpacing: 4,
+                                      children: [
+                                        Text(
+                                          'Qty ${Formatters.quantity(item.quantity)}',
+                                        ),
+                                        Text(
+                                          'Price ${Formatters.money(item.unitPrice)}',
+                                        ),
+                                        Text(
+                                          'Revenue ${Formatters.money(item.revenue)}',
+                                        ),
+                                        if (sale.showsCosting) ...[
+                                          Text(
+                                            'COGS ${Formatters.money(item.cogs)}',
+                                          ),
+                                          Text(
+                                            'Profit ${Formatters.money(item.lineProfit)}',
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Summary', style: AppTextStyles.headingSmall),
+                      const SizedBox(height: AppSizes.md),
+                      AppDetailRow(
+                        label: 'Subtotal',
+                        value: Formatters.money(sale.subtotal),
+                      ),
+                      AppDetailRow(
+                        label: 'Discount',
+                        value: Formatters.money(sale.discount),
+                      ),
+                      AppDetailRow(
+                        label: 'Other charges',
+                        value: Formatters.money(sale.otherCharges),
+                      ),
+                      AppDetailRow(
+                        label: 'Total',
+                        value: Formatters.money(sale.totalAmount),
+                      ),
+                      if (sale.showsCosting) ...[
+                        AppDetailRow(
+                          label: 'Total COGS (FIFO)',
+                          value: Formatters.money(sale.totalCogs),
                         ),
-                        const SizedBox(height: AppSizes.lg),
-                        AppCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text('Summary', style: AppTextStyles.headingSmall),
-                              const SizedBox(height: AppSizes.md),
-                              AppDetailRow(
-                                label: 'Subtotal',
-                                value: Formatters.money(sale.subtotal),
-                              ),
-                              AppDetailRow(
-                                label: 'Discount',
-                                value: Formatters.money(sale.discount),
-                              ),
-                              AppDetailRow(
-                                label: 'Other charges',
-                                value: Formatters.money(sale.otherCharges),
-                              ),
-                              AppDetailRow(
-                                label: 'Total',
-                                value: Formatters.money(sale.totalAmount),
-                              ),
-                              if (sale.showsCosting) ...[
-                                AppDetailRow(
-                                  label: 'Total COGS (FIFO)',
-                                  value: Formatters.money(sale.totalCogs),
-                                ),
-                                AppDetailRow(
-                                  label: 'Total profit',
-                                  value: Formatters.money(sale.totalProfit),
-                                ),
-                              ],
-                              if (sale.notes?.isNotEmpty == true) ...[
-                                const SizedBox(height: AppSizes.md),
-                                Text('Notes', style: AppTextStyles.label),
-                                const SizedBox(height: 4),
-                                Text(
-                                  sale.notes!,
-                                  style: AppTextStyles.bodyMedium,
-                                ),
-                              ],
-                              if (sale.createdAt != null) ...[
-                                const SizedBox(height: AppSizes.md),
-                                AppDetailRow(
-                                  label: 'Created',
-                                  value: Formatters.dateTime(
-                                    sale.createdAt!,
-                                  ),
-                                ),
-                              ],
-                              if (sale.updatedAt != null)
-                                AppDetailRow(
-                                  label: 'Updated',
-                                  value: Formatters.dateTime(
-                                    sale.updatedAt!,
-                                  ),
-                                ),
-                            ],
-                          ),
+                        AppDetailRow(
+                          label: 'Total profit',
+                          value: Formatters.money(sale.totalProfit),
                         ),
                       ],
-                    ),
+                      if (sale.notes?.isNotEmpty == true) ...[
+                        const SizedBox(height: AppSizes.md),
+                        Text('Notes', style: AppTextStyles.label),
+                        const SizedBox(height: 4),
+                        Text(sale.notes!, style: AppTextStyles.bodyMedium),
+                      ],
+                      if (sale.createdAt != null) ...[
+                        const SizedBox(height: AppSizes.md),
+                        AppDetailRow(
+                          label: 'Created',
+                          value: Formatters.dateTime(sale.createdAt!),
+                        ),
+                      ],
+                      if (sale.updatedAt != null)
+                        AppDetailRow(
+                          label: 'Updated',
+                          value: Formatters.dateTime(sale.updatedAt!),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

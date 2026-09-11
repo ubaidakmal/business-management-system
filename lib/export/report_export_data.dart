@@ -1,4 +1,3 @@
-import '../core/constants/app_strings.dart';
 import '../core/utils/formatters.dart';
 
 /// Neutral export payload built from already-filtered report data.
@@ -18,7 +17,7 @@ class ReportExportData {
     required this.summary,
     required this.columns,
     required this.rows,
-    this.businessName = AppStrings.appName,
+    this.businessName = 'Business Management',
   });
 
   final String businessName;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../state/locale_controller.dart';
+
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/routes/app_router.dart';
@@ -94,15 +96,15 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
     final sale = _sale;
 
     return AppScaffold(
-      title: 'Sale Details',
+      title: context.l10n.saleDetails,
       route: AppRoutes.sales,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppLoading()
           : _error != null
           ? AppErrorState(message: _error!, onRetry: _load)
           : sale == null
-          ? const AppEmptyState(
-              title: 'Sale not found',
+          ? AppEmptyState(
+              title: context.l10n.saleNotFound,
               message: 'This sale may have been removed.',
             )
           : ListView(

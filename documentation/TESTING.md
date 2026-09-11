@@ -1,6 +1,6 @@
 # Manual testing guide
 
-Step-by-step checks for Phases 1–12. Keep it short: do the steps in order when possible (later phases need companies/products/stock).
+Step-by-step checks for Phases 1–14. Keep it short: do the steps in order when possible (later phases need companies/products/stock).
 
 ---
 
@@ -182,6 +182,31 @@ Use a product with known cost (opening unit cost and/or purchase costs).
 4. Admin → Settings → Market settings → disable → Market shows disabled / blocked.
 5. Re-enable → Refresh works again.
 6. Mobile cards + desktop split layout without overflow.
+
+---
+
+## Phase 13 — Security & polish
+
+**Prerequisite:** migration `20260911110000_phase13_security_hardening.sql` applied.
+
+1. Login / logout / reopen app (session restore) works.
+2. Disable a user in Admin → that account cannot use business data; login shows disabled message.
+3. Purchase/sale create/complete/cancel still works via the app (RPCs).
+4. Confirm Flutter still has **no** service-role / external API secrets.
+5. Market Refresh still works; bad/empty provider responses show a clear error.
+6. Spot-check mobile + desktop on Dashboard, lists, forms, Reports, Market, Settings — no overflow.
+7. Run `flutter analyze` and `flutter test` (optional automated gate).
+
+---
+
+## Phase 14 — Localization
+
+1. Settings → Language → switch to **繁體中文** → nav/dashboard/settings update immediately.
+2. Kill and reopen the app → language stays 繁體中文.
+3. Switch back to **English** → UI returns to English and persists.
+4. Open Reports → Export PDF/Excel: metric labels match the selected language (company/product names unchanged).
+5. Market / Dashboard / list screens: titles and primary actions localized.
+6. Note: PDF built-in Helvetica may not render CJK glyphs well; Excel Unicode is fine.
 
 ---
 

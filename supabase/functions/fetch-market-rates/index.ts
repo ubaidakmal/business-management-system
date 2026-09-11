@@ -56,13 +56,31 @@ function pickQuotes(
   return rates;
 }
 
+async function fetchWithTimeout(
+  url: string,
+  timeoutMs = 10000,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Market API request timed out.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchOpenErApi(
   base: string,
   quotes: string[],
 ): Promise<{ source: string; rates: Record<string, number> }> {
   const url =
     `https://open.er-api.com/v6/latest/${encodeURIComponent(base)}`;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) {
     throw new Error(`Open ER API error (${res.status})`);
   }
@@ -82,7 +100,7 @@ async function fetchFrankfurter(
   const url =
     `https://api.frankfurter.app/latest?from=${encodeURIComponent(base)}` +
     (to ? `&to=${encodeURIComponent(to)}` : "");
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) {
     throw new Error(`Frankfurter API error (${res.status})`);
   }
@@ -98,7 +116,7 @@ async function fetchExchangeRateApi(
 ): Promise<{ source: string; rates: Record<string, number> }> {
   const url =
     `https://v6.exchangerate-api.com/v6/${encodeURIComponent(apiKey)}/latest/${encodeURIComponent(base)}`;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) {
     throw new Error(`ExchangeRate-API error (${res.status})`);
   }
@@ -222,13 +240,21 @@ Deno.serve(async (req) => {
       fetched_at: fetchedAt,
     }));
 
-    if (insertRows.length > 0) {
-      const { error: insertError } = await admin.from("market_data").insert(
-        insertRows,
+    if (insertRows.length === 0) {
+      return jsonResponse(
+        {
+          error:
+            "No rates returned for the configured currencies. Check base/quote settings or provider coverage.",
+        },
+        502,
       );
-      if (insertError) {
-        return jsonResponse({ error: insertError.message }, 500);
-      }
+    }
+
+    const { error: insertError } = await admin.from("market_data").insert(
+      insertRows,
+    );
+    if (insertError) {
+      return jsonResponse({ error: insertError.message }, 500);
     }
 
     const rates: RateRow[] = insertRows.map((r) => ({

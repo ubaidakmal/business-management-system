@@ -103,7 +103,19 @@ class MarketController extends ChangeNotifier {
       );
       source = result.source;
       lastUpdated = result.fetchedAt;
-      await load();
+      baseCurrency = settings.marketBaseCurrency;
+      marketEnabled = settings.marketEnabled;
+      rates = await _market.listLatest(baseCurrency: baseCurrency);
+      if (rates.isNotEmpty) {
+        selectedSymbol ??= rates.first.symbol;
+        if (selectedSymbol != null) {
+          await _loadHistory(selectedSymbol!);
+        }
+        status = AppStatus.success;
+      } else {
+        history = const [];
+        status = AppStatus.empty;
+      }
       refreshStatus = AppStatus.success;
       notifyListeners();
       return true;

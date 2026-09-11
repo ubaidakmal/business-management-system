@@ -5,6 +5,7 @@ import '../../core/utils/app_error.dart';
 import '../../core/utils/responsive.dart';
 import '../../export/report_export_data.dart';
 import '../../export/report_export_service.dart';
+import '../../state/locale_controller.dart';
 import '../app_buttons.dart';
 import '../app_feedback.dart';
 
@@ -29,11 +30,12 @@ class _ReportExportActionsState extends State<ReportExportActions> {
   ReportExportAction? _busy;
 
   Future<void> _run(ReportExportAction action) async {
+    final l10n = context.l10n;
     final data = widget.buildData();
     if (data == null) {
       AppSnackbar.show(
         context,
-        'Load the report before exporting.',
+        l10n.exportLoadFirst,
         isError: true,
       );
       return;
@@ -44,10 +46,10 @@ class _ReportExportActionsState extends State<ReportExportActions> {
       switch (action) {
         case ReportExportAction.pdf:
           await ReportExportService.exportPdf(data);
-          if (mounted) AppSnackbar.show(context, 'PDF ready.');
+          if (mounted) AppSnackbar.show(context, context.l10n.pdfReady);
         case ReportExportAction.excel:
           await ReportExportService.exportExcel(data);
-          if (mounted) AppSnackbar.show(context, 'Excel file saved.');
+          if (mounted) AppSnackbar.show(context, context.l10n.excelSaved);
         case ReportExportAction.print:
           await ReportExportService.printReport(data);
       }
@@ -62,22 +64,23 @@ class _ReportExportActionsState extends State<ReportExportActions> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
     final enabled = widget.enabled && _busy == null;
 
     final buttons = [
       AppOutlinedButton(
-        label: 'Export PDF',
+        label: l10n.exportPdf,
         expanded: !desktop,
         onPressed: enabled ? () => _run(ReportExportAction.pdf) : null,
       ),
       AppOutlinedButton(
-        label: 'Export Excel',
+        label: l10n.exportExcel,
         expanded: !desktop,
         onPressed: enabled ? () => _run(ReportExportAction.excel) : null,
       ),
       AppOutlinedButton(
-        label: desktop ? 'Print' : 'Print / Share',
+        label: desktop ? l10n.print : l10n.printShare,
         expanded: !desktop,
         onPressed: enabled ? () => _run(ReportExportAction.print) : null,
       ),

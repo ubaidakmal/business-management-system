@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../state/locale_controller.dart';
+
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/routes/app_router.dart';
@@ -19,6 +21,7 @@ import '../widgets/app_feedback.dart';
 import '../widgets/app_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/app_surfaces.dart';
+import '../widgets/app_states.dart';
 
 class _DraftItem {
   _DraftItem({
@@ -480,10 +483,10 @@ class _SaleFormScreenState extends State<SaleFormScreen> {
     final desktop = AppResponsive.isDesktop(context);
 
     return AppScaffold(
-      title: _isEditing ? 'Edit Sale' : 'Add Sale',
+      title: _isEditing ? context.l10n.editSale : context.l10n.addSale,
       route: AppRoutes.sales,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppLoading()
           : Form(
               key: _formKey,
               child: ListView(

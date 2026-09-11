@@ -8,6 +8,7 @@ import '../../core/utils/formatters.dart';
 import '../../core/utils/responsive.dart';
 import '../../models/market_data.dart';
 import '../../state/app_status.dart';
+import '../../state/locale_controller.dart';
 import '../../state/market_controller.dart';
 import '../../widgets/app_buttons.dart';
 import '../../widgets/app_feedback.dart';
@@ -62,7 +63,7 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   String _trendLabel(List<MarketHistoryPoint> points) {
-    if (points.length < 2) return '—';
+    if (points.length < 2) return context.l10n.emDash;
     final first = points.first.value;
     final last = points.last.value;
     if (last > first) return 'Up';
@@ -81,10 +82,11 @@ class _MarketScreenState extends State<MarketScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
 
     return AppScaffold(
-      title: 'Market',
+      title: l10n.marketTitle,
       route: AppRoutes.market,
       body: RefreshIndicator(
         onRefresh: _onRefresh,
@@ -92,11 +94,9 @@ class _MarketScreenState extends State<MarketScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             AppSectionHeader(
-              title: 'Live market rates',
-              subtitle:
-                  'FX rates via secure Edge Function (no API keys in app)',
+              title: l10n.exchangeRates,
               action: AppButton(
-                label: 'Refresh',
+                label: l10n.refresh,
                 expanded: false,
                 icon: Icons.refresh,
                 isLoading: _controller.isRefreshing,
@@ -111,8 +111,8 @@ class _MarketScreenState extends State<MarketScreen> {
               children: [
                 Text(
                   _controller.lastUpdated == null
-                      ? 'Last updated: —'
-                      : 'Last updated: ${Formatters.dateTime(_controller.lastUpdated)}',
+                      ? '${l10n.lastUpdated}: ${l10n.emDash}'
+                      : '${l10n.lastUpdated}: ${Formatters.dateTime(_controller.lastUpdated)}',
                   style: AppTextStyles.caption,
                 ),
                 if (_controller.source != null)
@@ -125,7 +125,7 @@ class _MarketScreenState extends State<MarketScreen> {
             ),
             const SizedBox(height: AppSizes.lg),
             if (_controller.isLoading && _controller.rates.isEmpty)
-              const AppLoading(message: 'Loading market data…')
+              AppLoading(message: l10n.loadingMarket)
             else if (_controller.status.hasError && _controller.rates.isEmpty)
               AppErrorState(
                 message: _controller.errorMessage,
@@ -134,11 +134,13 @@ class _MarketScreenState extends State<MarketScreen> {
             else if (!_controller.marketEnabled ||
                 (_controller.status.isEmpty && _controller.rates.isEmpty))
               AppEmptyState(
-                title: 'No market data',
+                title: l10n.noMarketData,
                 message:
                     _controller.errorMessage ??
-                    'Tap Refresh to fetch live rates, or enable Market in settings.',
-                actionLabel: _controller.marketEnabled ? 'Refresh' : null,
+                    (!_controller.marketEnabled
+                        ? l10n.marketDisabled
+                        : l10n.noMarketDataMessage),
+                actionLabel: _controller.marketEnabled ? l10n.refresh : null,
                 onAction: _controller.marketEnabled ? _onRefresh : null,
               )
             else ...[
@@ -164,13 +166,14 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   Widget _ratesCard({required bool desktop}) {
+    final l10n = context.l10n;
     final rates = _controller.rates;
     if (desktop) {
       return AppCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Current rates', style: AppTextStyles.label),
+            Text(l10n.exchangeRates, style: AppTextStyles.label),
             const SizedBox(height: AppSizes.md),
             const Divider(height: 1),
             for (final rate in rates) ...[
@@ -246,7 +249,8 @@ class _MarketScreenState extends State<MarketScreen> {
   }
 
   Widget _historyCard() {
-    final symbol = _controller.selectedSymbol ?? '—';
+    final l10n = context.l10n;
+    final symbol = _controller.selectedSymbol ?? l10n.emDash;
     final points = _controller.historyPoints;
     return AppCard(
       child: Column(
@@ -255,7 +259,10 @@ class _MarketScreenState extends State<MarketScreen> {
           Row(
             children: [
               Expanded(
-                child: Text('History · $symbol', style: AppTextStyles.label),
+                child: Text(
+                  '${l10n.marketHistory} · $symbol',
+                  style: AppTextStyles.label,
+                ),
               ),
               AppBadge(label: _trendLabel(points), type: _trendType(points)),
             ],
@@ -264,7 +271,7 @@ class _MarketScreenState extends State<MarketScreen> {
           MarketTrendChart(points: points),
           const SizedBox(height: AppSizes.md),
           if (points.isEmpty)
-            Text('No history yet.', style: AppTextStyles.bodySmall)
+            Text(l10n.emptyTitle, style: AppTextStyles.bodySmall)
           else
             for (final point in points.reversed.take(8))
               Padding(

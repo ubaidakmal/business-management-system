@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../state/locale_controller.dart';
+
 import '../core/constants/app_sizes.dart';
 import '../core/routes/app_router.dart';
 import '../core/utils/app_error.dart';
@@ -60,14 +62,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final product = _product;
 
     return AppScaffold(
-      title: 'Product Details',
+      title: context.l10n.productDetails,
       route: AppRoutes.products,
       body: _loading
           ? const AppLoading()
           : _error != null
           ? AppErrorState(message: _error, onRetry: _load)
           : product == null
-          ? const AppEmptyState(title: 'Product not found')
+          ? AppEmptyState(title: context.l10n.productNotFound)
           : ListView(
               children: [
                 AppSectionHeader(

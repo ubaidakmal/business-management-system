@@ -5,6 +5,7 @@ import '../../core/constants/app_sizes.dart';
 import '../../core/routes/app_router.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
+import '../../state/locale_controller.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/app_surfaces.dart';
 
@@ -13,49 +14,50 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
     final tablet = AppResponsive.isTablet(context);
     final crossAxisCount = desktop ? 3 : (tablet ? 2 : 1);
 
     final items = <_ReportLink>[
-      const _ReportLink(
-        title: 'Sales Reports',
-        subtitle: 'Revenue, COGS, and profit by invoice',
+      _ReportLink(
+        title: l10n.salesReports,
+        subtitle: l10n.salesReportsSubtitle,
         icon: Icons.point_of_sale_outlined,
         route: AppRoutes.reportsSales,
         color: AppColors.info,
       ),
-      const _ReportLink(
-        title: 'Purchase Reports',
-        subtitle: 'Completed purchases by date and company',
+      _ReportLink(
+        title: l10n.purchaseReports,
+        subtitle: l10n.purchaseReportsSubtitle,
         icon: Icons.shopping_cart_outlined,
         route: AppRoutes.reportsPurchases,
         color: AppColors.warning,
       ),
-      const _ReportLink(
-        title: 'Profit Reports',
-        subtitle: 'Stored FIFO COGS and gross profit',
+      _ReportLink(
+        title: l10n.profitReports,
+        subtitle: l10n.profitReportsSubtitle,
         icon: Icons.trending_up,
         route: AppRoutes.reportsProfit,
         color: AppColors.success,
       ),
-      const _ReportLink(
-        title: 'Stock Reports',
-        subtitle: 'Balances, low stock, and movements',
+      _ReportLink(
+        title: l10n.stockReports,
+        subtitle: l10n.stockReportsSubtitle,
         icon: Icons.warehouse_outlined,
         route: AppRoutes.reportsStock,
         color: AppColors.info,
       ),
-      const _ReportLink(
-        title: 'Product Reports',
-        subtitle: 'Quantity sold and profit contribution',
+      _ReportLink(
+        title: l10n.productReports,
+        subtitle: l10n.productReportsSubtitle,
         icon: Icons.inventory_2_outlined,
         route: AppRoutes.reportsProducts,
         color: AppColors.warning,
       ),
-      const _ReportLink(
-        title: 'Company Reports',
-        subtitle: 'Sales, purchases, and profit by company',
+      _ReportLink(
+        title: l10n.companyReports,
+        subtitle: l10n.companyReportsSubtitle,
         icon: Icons.apartment_outlined,
         route: AppRoutes.reportsCompanies,
         color: AppColors.success,
@@ -63,14 +65,13 @@ class ReportsScreen extends StatelessWidget {
     ];
 
     return AppScaffold(
-      title: 'Reports',
+      title: l10n.reportsTitle,
       route: AppRoutes.reports,
       body: ListView(
         children: [
-          const AppSectionHeader(
-            title: 'Reports',
-            subtitle:
-                'Database-driven summaries with PDF, Excel, and print export.',
+          AppSectionHeader(
+            title: l10n.reportsTitle,
+            subtitle: l10n.reportsSubtitle,
           ),
           const SizedBox(height: AppSizes.xl),
           LayoutBuilder(

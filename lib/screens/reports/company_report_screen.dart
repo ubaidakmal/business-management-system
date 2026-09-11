@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../state/locale_controller.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/routes/app_router.dart';
@@ -84,9 +86,11 @@ class _CompanyReportScreenState extends State<CompanyReportScreen> {
               final data = _controller.data;
               if (data == null) return null;
               return ReportExportBuilders.companies(
+                l10n: context.l10n,
                 data: data,
                 filters: [
                   ReportExportBuilders.dateRangeFilter(
+                    context.l10n,
                     _controller.dateFrom,
                     _controller.dateTo,
                   ),

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/routes/app_router.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../core/validators/validators.dart';
 import '../../models/app_settings.dart';
 import '../../state/app_status.dart';
@@ -102,6 +100,11 @@ class _BusinessSettingsScreenState extends State<BusinessSettingsScreen> {
         route: AppRoutes.settings,
         body: _controller.isLoading
             ? const AppLoading()
+            : _controller.status.hasError
+            ? AppErrorState(
+                message: _controller.errorMessage,
+                onRetry: _bootstrap,
+              )
             : Form(
                 key: _formKey,
                 child: ListView(
@@ -118,16 +121,6 @@ class _BusinessSettingsScreenState extends State<BusinessSettingsScreen> {
                         icon: const Icon(Icons.arrow_back),
                       ),
                     ),
-                    if (_controller.errorMessage != null &&
-                        _controller.status.hasError) ...[
-                      const SizedBox(height: AppSizes.md),
-                      Text(
-                        _controller.errorMessage!,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.error,
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: AppSizes.lg),
                     AppCard(
                       child: Column(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_sizes.dart';
-import '../core/constants/app_strings.dart';
 import '../core/routes/app_router.dart';
 import '../core/theme/app_text_styles.dart';
 import '../core/utils/responsive.dart';
@@ -9,11 +8,13 @@ import '../core/validators/validators.dart';
 import '../models/permission.dart';
 import '../services/settings_service.dart';
 import '../state/auth_controller.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_feedback.dart';
 import '../widgets/app_fields.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/app_surfaces.dart';
+import '../widgets/language_selector.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -47,15 +48,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final auth = AuthScope.read(context);
     final ok = await auth.updateName(_name.text);
     if (!mounted) return;
-    if (ok) AppSnackbar.show(context, AppStrings.profileUpdated);
+    if (ok) AppSnackbar.show(context, context.l10n.profileUpdated);
   }
 
   Future<void> _signOut() async {
+    final l10n = context.l10n;
     final confirmed = await AppDialog.confirm(
       context,
-      title: AppStrings.signOut,
-      message: 'Sign out of ${SettingsService.cachedBusinessName}?',
-      confirmLabel: AppStrings.signOut,
+      title: l10n.signOut,
+      message: l10n.signOutConfirm(SettingsService.cachedBusinessName),
+      confirmLabel: l10n.signOut,
     );
     if (!confirmed || !mounted) return;
 
@@ -66,6 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final auth = AuthScope.of(context);
     final user = auth.user;
     final permissions = AppPermissions(user?.role ?? 'user');
@@ -75,49 +78,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (permissions.manageSettings) ...[
         _SettingsLink(
           icon: Icons.storefront_outlined,
-          title: 'Business profile',
-          subtitle: 'Name, contact, and address used in reports',
+          title: l10n.businessProfile,
+          subtitle: l10n.businessProfileSubtitle,
           onTap: () => Navigator.pushNamed(context, AppRoutes.settingsBusiness),
         ),
         _SettingsLink(
           icon: Icons.tune_outlined,
-          title: 'Preferences',
-          subtitle: 'Currency and display formats',
+          title: l10n.preferences,
+          subtitle: l10n.preferencesSubtitle,
           onTap: () =>
               Navigator.pushNamed(context, AppRoutes.settingsPreferences),
         ),
         _SettingsLink(
           icon: Icons.show_chart_outlined,
-          title: 'Market settings',
-          subtitle: 'Enable rates and configure currencies',
+          title: l10n.marketSettings,
+          subtitle: l10n.marketSettingsSubtitle,
           onTap: () => Navigator.pushNamed(context, AppRoutes.settingsMarket),
         ),
       ],
       _SettingsLink(
         icon: Icons.security_outlined,
-        title: 'Roles & permissions',
-        subtitle: 'What your role can do in the app',
+        title: l10n.rolesPermissions,
+        subtitle: l10n.rolesPermissionsSubtitle,
         onTap: () =>
             Navigator.pushNamed(context, AppRoutes.settingsPermissions),
       ),
       if (permissions.viewAdmin)
         _SettingsLink(
           icon: Icons.admin_panel_settings_outlined,
-          title: 'Administration',
-          subtitle: 'Users and system overview',
+          title: l10n.administration,
+          subtitle: l10n.administrationSubtitle,
           onTap: () => Navigator.pushNamed(context, AppRoutes.admin),
         ),
     ];
 
-    final workspace = AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Workspace', style: AppTextStyles.headingSmall),
-          const SizedBox(height: AppSizes.md),
-          ...links,
-        ],
-      ),
+    final workspace = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const LanguageSelector(),
+        const SizedBox(height: AppSizes.lg),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.workspace, style: AppTextStyles.headingSmall),
+              const SizedBox(height: AppSizes.md),
+              ...links,
+            ],
+          ),
+        ),
+      ],
     );
 
     final profile = AppCard(
@@ -130,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    AppStrings.profileTitle,
+                    l10n.profileTitle,
                     style: AppTextStyles.headingSmall,
                   ),
                 ),
@@ -143,18 +153,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
             const SizedBox(height: AppSizes.md),
-            Text(AppStrings.emailLabel, style: AppTextStyles.label),
+            Text(l10n.emailLabel, style: AppTextStyles.label),
             const SizedBox(height: 6),
-            Text(user?.email ?? '—', style: AppTextStyles.bodyMedium),
+            Text(user?.email ?? l10n.emDash, style: AppTextStyles.bodyMedium),
             const SizedBox(height: AppSizes.md),
             AppTextField(
               controller: _name,
-              label: AppStrings.nameLabel,
+              label: l10n.nameLabel,
               validator: (value) => Validators.requiredField(value, 'Name'),
             ),
             const SizedBox(height: AppSizes.lg),
             AppButton(
-              label: AppStrings.saveProfile,
+              label: l10n.saveProfile,
               isLoading: auth.isLoading,
               onPressed: _saveProfile,
             ),
@@ -164,13 +174,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     return AppScaffold(
-      title: 'Settings',
+      title: l10n.settingsTitle,
       route: AppRoutes.settings,
       body: ListView(
         children: [
-          const AppSectionHeader(
-            title: 'Settings',
-            subtitle: 'Account, business profile, and administration',
+          AppSectionHeader(
+            title: l10n.settingsTitle,
+            subtitle: l10n.settingsSubtitle,
           ),
           const SizedBox(height: AppSizes.lg),
           if (desktop)
@@ -192,15 +202,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Security', style: AppTextStyles.headingSmall),
+                Text(l10n.security, style: AppTextStyles.headingSmall),
                 const SizedBox(height: AppSizes.md),
                 AppOutlinedButton(
-                  label: AppStrings.forgotPasswordTitle,
+                  label: l10n.forgotPasswordTitle,
                   onPressed: () =>
                       Navigator.pushNamed(context, AppRoutes.resetPassword),
                 ),
                 const SizedBox(height: AppSizes.md),
-                AppButton(label: AppStrings.signOut, onPressed: _signOut),
+                AppButton(label: l10n.signOut, onPressed: _signOut),
               ],
             ),
           ),

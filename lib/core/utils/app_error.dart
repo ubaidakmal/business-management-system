@@ -46,8 +46,9 @@ abstract final class AppError {
     }
     if (error is FunctionException) {
       final details = error.details;
-      if (details is Map && details['message'] is String) {
-        return details['message'] as String;
+      if (details is Map) {
+        final mapped = details['error'] ?? details['message'];
+        if (mapped is String && mapped.trim().isNotEmpty) return mapped;
       }
       if (details is String && details.trim().isNotEmpty) return details;
       final reason = error.reasonPhrase;

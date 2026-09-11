@@ -218,20 +218,15 @@ class AuthController extends ChangeNotifier {
       }
     } catch (error) {
       AppLogger.error('Could not load profile', error);
-      // Session exists — keep the user authenticated with auth email fallback.
-      final authUser = _auth.currentUser;
-      if (authUser != null) {
-        user = AppUser(
-          id: authUser.id,
-          email: authUser.email ?? '',
-          name: authUser.email?.split('@').first,
-        );
-        status = AuthStatus.authenticated;
-        unawaited(SettingsService().load());
-      } else {
-        status = AuthStatus.unauthenticated;
-        user = null;
-      }
+      // Do not invent an active user when profile verification fails.
+      try {
+        await _auth.signOut();
+      } catch (_) {}
+      user = null;
+      status = AuthStatus.unauthenticated;
+      errorMessage =
+          'Could not verify your account. Please sign in again.';
+      actionStatus = AppStatus.error;
     }
     notifyListeners();
   }

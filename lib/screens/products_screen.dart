@@ -14,6 +14,7 @@ import '../services/company_service.dart';
 import '../state/app_status.dart';
 import '../state/auth_controller.dart';
 import '../state/products_controller.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_feedback.dart';
 import '../widgets/app_fields.dart';
@@ -106,10 +107,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
   Future<void> _confirmDelete(Product product) async {
     final ok = await AppDialog.confirm(
       context,
-      title: 'Delete product',
+      title: context.l10n.delete,
       message:
           'Permanently delete ${product.name}? Prefer deactivation if it may be used later.',
-      confirmLabel: 'Delete',
+      confirmLabel: context.l10n.delete,
     );
     if (!ok) return;
     final success = await _controller.delete(product);
@@ -123,20 +124,21 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
     final isAdmin = AuthScope.of(context).user?.isAdmin == true;
 
     return AppScaffold(
-      title: 'Products',
+      title: l10n.productsTitle,
       route: AppRoutes.products,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppSectionHeader(
-            title: 'Products',
+            title: l10n.productsTitle,
             subtitle: 'Catalog items linked to companies.',
             action: AppButton(
-              label: 'Add Product',
+              label: l10n.addProduct,
               expanded: false,
               icon: Icons.add,
               onPressed: () => _openForm(),
@@ -158,11 +160,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
               SizedBox(
                 width: desktop ? 220 : double.infinity,
                 child: AppDropdown<String?>(
-                  label: 'Company',
+                  label: l10n.company,
                   value: _controller.companyId,
-                  hint: 'All companies',
+                  hint: l10n.allCompanies,
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
                     for (final company in _companyOptions)
                       DropdownMenuItem(
                         value: company.id,
@@ -178,11 +180,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
               SizedBox(
                 width: desktop ? 180 : double.infinity,
                 child: AppDropdown<String?>(
-                  label: 'Category',
+                  label: l10n.category,
                   value: _controller.category,
-                  hint: 'All categories',
+                  hint: l10n.all,
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
                     for (final category in _controller.categories)
                       DropdownMenuItem(value: category, child: Text(category)),
                   ],
@@ -192,13 +194,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
               SizedBox(
                 width: desktop ? 160 : double.infinity,
                 child: AppDropdown<bool?>(
-                  label: 'Status',
+                  label: l10n.status,
                   value: _controller.activeFilter,
-                  hint: 'All',
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('All')),
-                    DropdownMenuItem(value: true, child: Text('Active')),
-                    DropdownMenuItem(value: false, child: Text('Inactive')),
+                  hint: l10n.all,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
+                    DropdownMenuItem(value: true, child: Text(l10n.active)),
+                    DropdownMenuItem(value: false, child: Text(l10n.inactive)),
                   ],
                   onChanged: _controller.setActiveFilter,
                 ),
@@ -225,10 +227,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
       );
     }
     if (_controller.status.isEmpty) {
+      final l10n = context.l10n;
       return AppEmptyState(
-        title: 'No products yet',
+        title: l10n.noProductsYet,
         message: 'Add your first product to get started.',
-        actionLabel: 'Add Product',
+        actionLabel: l10n.addProduct,
         onAction: () => _openForm(),
       );
     }
@@ -277,7 +280,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                   ),
                   AppBadge(
-                    label: product.isActive ? 'Active' : 'Inactive',
+                    label: product.isActive ? context.l10n.active : context.l10n.inactive,
                     type: product.isActive
                         ? AppBadgeType.success
                         : AppBadgeType.neutral,
@@ -285,7 +288,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 ],
               ),
               const SizedBox(height: 6),
-              Text(product.companyName ?? '—', style: AppTextStyles.bodySmall),
+              Text(product.companyName ?? context.l10n.emDash, style: AppTextStyles.bodySmall),
               Text(
                 [
                   if (product.sku?.isNotEmpty == true) 'SKU ${product.sku}',
@@ -304,7 +307,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 spacing: 8,
                 children: [
                   AppOutlinedButton(
-                    label: 'Edit',
+                    label: context.l10n.edit,
                     expanded: false,
                     onPressed: () => _openForm(productId: product.id),
                   ),
@@ -323,19 +326,20 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Widget _headerRow() {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
-        children: const [
-          Expanded(flex: 3, child: Text('Product', style: AppTextStyles.label)),
-          Expanded(flex: 2, child: Text('Company', style: AppTextStyles.label)),
-          Expanded(child: Text('SKU', style: AppTextStyles.label)),
-          Expanded(child: Text('Buy', style: AppTextStyles.label)),
-          Expanded(child: Text('Sell', style: AppTextStyles.label)),
-          Expanded(child: Text('Status', style: AppTextStyles.label)),
+        children: [
+          Expanded(flex: 3, child: Text(l10n.product, style: AppTextStyles.label)),
+          Expanded(flex: 2, child: Text(l10n.company, style: AppTextStyles.label)),
+          Expanded(child: Text(l10n.sku, style: AppTextStyles.label)),
+          Expanded(child: Text(l10n.cost, style: AppTextStyles.label)),
+          Expanded(child: Text(l10n.price, style: AppTextStyles.label)),
+          Expanded(child: Text(l10n.status, style: AppTextStyles.label)),
           SizedBox(
             width: 120,
-            child: Text('Actions', style: AppTextStyles.label),
+            child: Text(l10n.actions, style: AppTextStyles.label),
           ),
         ],
       ),
@@ -365,7 +369,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             Expanded(
               flex: 2,
               child: Text(
-                product.companyName ?? '—',
+                product.companyName ?? context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodySmall,
@@ -373,7 +377,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ),
             Expanded(
               child: Text(
-                product.sku?.isNotEmpty == true ? product.sku! : '—',
+                product.sku?.isNotEmpty == true ? product.sku! : context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -384,7 +388,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: AppBadge(
-                  label: product.isActive ? 'Active' : 'Inactive',
+                  label: product.isActive ? context.l10n.active : context.l10n.inactive,
                   type: product.isActive
                       ? AppBadgeType.success
                       : AppBadgeType.neutral,
@@ -396,7 +400,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Edit',
+                    tooltip: context.l10n.edit,
                     onPressed: () => _openForm(productId: product.id),
                     icon: const Icon(Icons.edit_outlined, size: 20),
                   ),
@@ -412,7 +416,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ),
                   if (isAdmin)
                     IconButton(
-                      tooltip: 'Delete',
+                      tooltip: context.l10n.delete,
                       onPressed: () => _confirmDelete(product),
                       icon: const Icon(
                         Icons.delete_outline,

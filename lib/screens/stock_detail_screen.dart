@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../state/locale_controller.dart';
+
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/routes/app_router.dart';
@@ -72,10 +74,10 @@ class _StockDetailScreenState extends State<StockDetailScreen> {
     final isAdmin = AuthScope.of(context).user?.isAdmin == true;
 
     return AppScaffold(
-      title: 'Stock Details',
+      title: context.l10n.stockDetails,
       route: AppRoutes.stock,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppLoading()
           : _error != null
           ? AppErrorState(message: _error!, onRetry: _load)
           : balance == null

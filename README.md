@@ -19,10 +19,12 @@ Android Studio: press Play. Supabase keys are in `lib/config/app_config.dart`.
 - Email: `admin@bms.app`
 - Password: `Password123!`
 
-## Phase 3–12
+## Phase 3–14
 
 After login: **Dashboard**, **Companies**, **Products**, **Purchases**, **Sales**, **Stock**, **Market**, **Reports**, and **Settings**.
 
+- Phase 14: Settings → Language (English / 繁體中文), stored on device only
+- Phase 13 hardened DB security (RPC-only purchase/sale writes; disabled-user gates)
 - Market: live FX rates via Edge Function (secrets server-side only)
 - Reports + PDF/Excel/Print exports
 - Settings/admin for business profile and users

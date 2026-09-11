@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../state/locale_controller.dart';
+
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/routes/app_router.dart';
@@ -178,9 +180,11 @@ class _StockReportScreenState extends State<StockReportScreen> {
                 return null;
               }
               return ReportExportBuilders.stock(
+                l10n: context.l10n,
                 items: _controller.items,
                 filters: [
                   ReportExportBuilders.companyFilter(
+                    context.l10n,
                     _controller.companyId,
                     _companyName(),
                   ),

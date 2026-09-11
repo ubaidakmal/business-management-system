@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
-import '../core/constants/app_strings.dart';
 import '../core/routes/app_router.dart';
 import '../core/theme/app_text_styles.dart';
 import '../core/utils/responsive.dart';
 import '../state/auth_controller.dart';
+import '../state/locale_controller.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
@@ -29,13 +29,14 @@ class AppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final desktop = AppResponsive.isDesktop(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(title, style: AppTextStyles.headingSmall),
         actions: [
           IconButton(
-            tooltip: AppStrings.signOut,
+            tooltip: l10n.signOut,
             onPressed: () => _signOut(context),
             icon: const Icon(Icons.logout),
           ),
@@ -84,6 +85,7 @@ class _NavList extends StatelessWidget {
   Widget build(BuildContext context) {
     final onNavy = !inDrawer;
     final user = AuthScope.of(context).user;
+    final l10n = context.l10n;
 
     return SafeArea(
       child: Column(
@@ -95,7 +97,7 @@ class _NavList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppStrings.appName,
+                  l10n.appName,
                   style: AppTextStyles.headingSmall.copyWith(
                     color: onNavy ? Colors.white : AppColors.textPrimary,
                   ),
@@ -117,7 +119,7 @@ class _NavList extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                for (final item in AppRoutes.modules)
+                for (final item in AppRoutes.modules(l10n))
                   _NavTile(
                     item: item,
                     selected: item.route == selectedRoute,

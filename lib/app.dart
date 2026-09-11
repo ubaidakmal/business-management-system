@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/constants/app_strings.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'l10n/app_localizations.dart';
 import 'state/auth_controller.dart';
+import 'state/locale_controller.dart';
 
 class BusinessApp extends StatefulWidget {
   const BusinessApp({super.key});
@@ -51,10 +53,20 @@ class _BusinessAppState extends State<BusinessApp> {
 
   @override
   Widget build(BuildContext context) {
+    final localeController = LocaleScope.of(context);
+
     return MaterialApp(
-      title: AppStrings.appName,
+      onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      locale: localeController.locale,
+      supportedLocales: LocaleController.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       navigatorKey: AppRouter.navigatorKey,
       initialRoute: AppRoutes.splash,
       onGenerateRoute: AppRouter.onGenerateRoute,

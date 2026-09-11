@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_sizes.dart';
 import '../../core/routes/app_router.dart';
 import '../../core/validators/validators.dart';
+import '../../state/app_status.dart';
 import '../../state/settings_controller.dart';
 import '../../widgets/admin_gate.dart';
 import '../../widgets/app_buttons.dart';
@@ -79,6 +80,11 @@ class _MarketSettingsScreenState extends State<MarketSettingsScreen> {
         route: AppRoutes.settings,
         body: _controller.isLoading
             ? const AppLoading()
+            : _controller.status.hasError
+            ? AppErrorState(
+                message: _controller.errorMessage,
+                onRetry: _bootstrap,
+              )
             : Form(
                 key: _formKey,
                 child: ListView(

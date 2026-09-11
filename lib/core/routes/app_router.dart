@@ -39,6 +39,7 @@ import '../../screens/stock_detail_screen.dart';
 import '../../screens/stock_screen.dart';
 import '../../widgets/auth_gate.dart';
 import '../constants/app_strings.dart';
+import '../../l10n/app_localizations.dart';
 
 class AppDestination {
   const AppDestination({
@@ -97,50 +98,50 @@ abstract final class AppRoutes {
     resetPassword,
   };
 
-  static const modules = <AppDestination>[
+  static List<AppDestination> modules(AppLocalizations l10n) => [
     AppDestination(
       route: dashboard,
-      label: 'Dashboard',
+      label: l10n.navDashboard,
       icon: Icons.space_dashboard_outlined,
     ),
     AppDestination(
       route: companies,
-      label: 'Companies',
+      label: l10n.navCompanies,
       icon: Icons.apartment_outlined,
     ),
     AppDestination(
       route: products,
-      label: 'Products',
+      label: l10n.navProducts,
       icon: Icons.inventory_2_outlined,
     ),
     AppDestination(
       route: purchases,
-      label: 'Purchases',
+      label: l10n.navPurchases,
       icon: Icons.shopping_cart_outlined,
     ),
     AppDestination(
       route: sales,
-      label: 'Sales',
+      label: l10n.navSales,
       icon: Icons.point_of_sale_outlined,
     ),
     AppDestination(
       route: stock,
-      label: 'Stock',
+      label: l10n.navStock,
       icon: Icons.warehouse_outlined,
     ),
     AppDestination(
       route: market,
-      label: 'Market',
+      label: l10n.navMarket,
       icon: Icons.show_chart_outlined,
     ),
     AppDestination(
       route: reports,
-      label: 'Reports',
+      label: l10n.navReports,
       icon: Icons.bar_chart_outlined,
     ),
     AppDestination(
       route: settings,
-      label: 'Settings',
+      label: l10n.navSettings,
       icon: Icons.settings_outlined,
     ),
   ];
@@ -226,7 +227,8 @@ abstract final class AppRouter {
   }
 
   static String _titleFor(String route) {
-    for (final module in AppRoutes.modules) {
+    final l10n = lookupAppLocalizations(const Locale('en'));
+    for (final module in AppRoutes.modules(l10n)) {
       if (module.route == route) return module.label;
     }
     return AppStrings.appName;

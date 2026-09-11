@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../state/locale_controller.dart';
+
 import '../core/constants/app_sizes.dart';
 import '../core/routes/app_router.dart';
 import '../core/utils/app_error.dart';
@@ -60,14 +62,14 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
     final company = _company;
 
     return AppScaffold(
-      title: 'Company Details',
+      title: context.l10n.companyDetails,
       route: AppRoutes.companies,
       body: _loading
           ? const AppLoading()
           : _error != null
           ? AppErrorState(message: _error, onRetry: _load)
           : company == null
-          ? const AppEmptyState(title: 'Company not found')
+          ? AppEmptyState(title: context.l10n.companyNotFound)
           : ListView(
               children: [
                 AppSectionHeader(

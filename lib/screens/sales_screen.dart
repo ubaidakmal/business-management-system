@@ -13,6 +13,7 @@ import '../models/sale.dart';
 import '../services/company_service.dart';
 import '../state/app_status.dart';
 import '../state/sales_controller.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_feedback.dart';
 import '../widgets/app_fields.dart';
@@ -97,12 +98,13 @@ class _SalesScreenState extends State<SalesScreen> {
   }
 
   Future<void> _cancel(Sale sale) async {
+    final l10n = context.l10n;
     final ok = await AppDialog.confirm(
       context,
-      title: 'Cancel sale',
+      title: l10n.cancelSale,
       message:
           'Are you sure you want to cancel this sale? The record will be kept.',
-      confirmLabel: 'Cancel sale',
+      confirmLabel: l10n.cancelSale,
     );
     if (!ok) return;
     final success = await _controller.cancel(sale);
@@ -125,20 +127,21 @@ class _SalesScreenState extends State<SalesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
 
     return AppScaffold(
-      title: 'Sales',
+      title: l10n.salesTitle,
       route: AppRoutes.sales,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppSectionHeader(
-            title: 'Sales',
+            title: l10n.salesTitle,
             subtitle:
                 'Record sales to customers/companies. Stock updates come later.',
             action: AppButton(
-              label: 'Add Sale',
+              label: l10n.addSale,
               expanded: false,
               icon: Icons.add,
               onPressed: () => _openForm(),
@@ -160,11 +163,11 @@ class _SalesScreenState extends State<SalesScreen> {
               SizedBox(
                 width: desktop ? 200 : double.infinity,
                 child: AppDropdown<String?>(
-                  label: 'Company',
+                  label: l10n.company,
                   value: _controller.companyId,
-                  hint: 'All companies',
+                  hint: l10n.allCompanies,
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
                     for (final company in _companyOptions)
                       DropdownMenuItem(
                         value: company.id,
@@ -180,19 +183,19 @@ class _SalesScreenState extends State<SalesScreen> {
               SizedBox(
                 width: desktop ? 160 : double.infinity,
                 child: AppDropdown<String?>(
-                  label: 'Status',
+                  label: l10n.status,
                   value: _controller.statusFilter,
-                  hint: 'All',
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('All')),
-                    DropdownMenuItem(value: 'draft', child: Text('Draft')),
+                  hint: l10n.all,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
+                    DropdownMenuItem(value: 'draft', child: Text(l10n.draft)),
                     DropdownMenuItem(
                       value: 'completed',
-                      child: Text('Completed'),
+                      child: Text(l10n.completed),
                     ),
                     DropdownMenuItem(
                       value: 'cancelled',
-                      child: Text('Cancelled'),
+                      child: Text(l10n.cancelled),
                     ),
                   ],
                   onChanged: _controller.setStatusFilter,
@@ -223,7 +226,7 @@ class _SalesScreenState extends State<SalesScreen> {
               if (_controller.dateFrom != null || _controller.dateTo != null)
                 TextButton(
                   onPressed: () => _controller.setDateRange(),
-                  child: const Text('Clear dates'),
+                  child: Text('Clear dates'),
                 ),
             ],
           ),
@@ -245,10 +248,11 @@ class _SalesScreenState extends State<SalesScreen> {
       );
     }
     if (_controller.status.isEmpty) {
+      final l10n = context.l10n;
       return AppEmptyState(
-        title: 'No sales yet',
+        title: l10n.noSalesYet,
         message: 'Create your first sale to get started.',
-        actionLabel: 'Add Sale',
+        actionLabel: l10n.addSale,
         onAction: () => _openForm(),
       );
     }
@@ -257,24 +261,29 @@ class _SalesScreenState extends State<SalesScreen> {
       return AppCard(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(child: Text('Date', style: AppTextStyles.label)),
-                  Expanded(
-                    flex: 2,
-                    child: Text('Company', style: AppTextStyles.label),
-                  ),
-                  Expanded(child: Text('Invoice', style: AppTextStyles.label)),
-                  Expanded(child: Text('Items', style: AppTextStyles.label)),
-                  Expanded(child: Text('Total', style: AppTextStyles.label)),
-                  Expanded(child: Text('Status', style: AppTextStyles.label)),
-                  SizedBox(
-                    width: 120,
-                    child: Text('Actions', style: AppTextStyles.label),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Builder(
+                builder: (context) {
+                  final l10n = context.l10n;
+                  return Row(
+                    children: [
+                      Expanded(child: Text(l10n.date, style: AppTextStyles.label)),
+                      Expanded(
+                        flex: 2,
+                        child: Text(l10n.company, style: AppTextStyles.label),
+                      ),
+                      Expanded(child: Text(l10n.invoice, style: AppTextStyles.label)),
+                      Expanded(child: Text(l10n.items, style: AppTextStyles.label)),
+                      Expanded(child: Text(l10n.total, style: AppTextStyles.label)),
+                      Expanded(child: Text(l10n.status, style: AppTextStyles.label)),
+                      SizedBox(
+                        width: 120,
+                        child: Text(l10n.actions, style: AppTextStyles.label),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             const Divider(height: 1),
@@ -310,7 +319,7 @@ class _SalesScreenState extends State<SalesScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      sale.companyName ?? '—',
+                      sale.companyName ?? context.l10n.emDash,
                       style: AppTextStyles.headingSmall,
                     ),
                   ),
@@ -338,13 +347,13 @@ class _SalesScreenState extends State<SalesScreen> {
                 children: [
                   if (sale.canEdit)
                     AppOutlinedButton(
-                      label: 'Edit',
+                      label: context.l10n.edit,
                       expanded: false,
                       onPressed: () => _openForm(saleId: sale.id),
                     ),
                   if (sale.canCancel)
                     AppOutlinedButton(
-                      label: 'Cancel',
+                      label: context.l10n.cancel,
                       expanded: false,
                       onPressed: () => _cancel(sale),
                     ),
@@ -372,7 +381,7 @@ class _SalesScreenState extends State<SalesScreen> {
             Expanded(
               flex: 2,
               child: Text(
-                sale.companyName ?? '—',
+                sale.companyName ?? context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -381,7 +390,7 @@ class _SalesScreenState extends State<SalesScreen> {
               child: Text(
                 sale.invoiceNumber?.isNotEmpty == true
                     ? sale.invoiceNumber!
-                    : '—',
+                    : context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -403,13 +412,13 @@ class _SalesScreenState extends State<SalesScreen> {
                 children: [
                   if (sale.canEdit)
                     IconButton(
-                      tooltip: 'Edit',
+                      tooltip: context.l10n.edit,
                       onPressed: () => _openForm(saleId: sale.id),
                       icon: const Icon(Icons.edit_outlined, size: 20),
                     ),
                   if (sale.canCancel)
                     IconButton(
-                      tooltip: 'Cancel',
+                      tooltip: context.l10n.cancel,
                       onPressed: () => _cancel(sale),
                       icon: const Icon(
                         Icons.cancel_outlined,

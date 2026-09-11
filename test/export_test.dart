@@ -1,12 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:business_management_app/export/excel_export_service.dart';
 import 'package:business_management_app/export/pdf_export_service.dart';
 import 'package:business_management_app/export/report_export_builders.dart';
 import 'package:business_management_app/export/report_export_data.dart';
+import 'package:business_management_app/l10n/app_localizations.dart';
 import 'package:business_management_app/models/report.dart';
 
 void main() {
+  final l10n = lookupAppLocalizations(const Locale('en'));
+
   test('ReportExportBuilders.sales maps filtered summary and rows', () {
     final data = SalesReportData(
       summary: const SalesReportSummary(
@@ -30,6 +34,7 @@ void main() {
     );
 
     final export = ReportExportBuilders.sales(
+      l10n: l10n,
       data: data,
       filters: const ['Company: Acme', 'Status: completed'],
     );
@@ -61,5 +66,11 @@ void main() {
     expect(xlsx, isNotEmpty);
     // PDF magic header
     expect(String.fromCharCodes(pdf.take(4)), '%PDF');
+  });
+
+  test('Traditional Chinese export labels use 總利潤', () {
+    final zh = lookupAppLocalizations(const Locale('zh', 'TW'));
+    expect(zh.totalProfit, '總利潤');
+    expect(zh.salesReport, '銷售報表');
   });
 }

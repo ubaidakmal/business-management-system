@@ -69,13 +69,8 @@ class AuthService {
           .eq('id', user.id)
           .maybeSingle();
 
-      if (data == null) {
-        return AppUser(
-          id: user.id,
-          email: user.email ?? '',
-          name: user.email?.split('@').first,
-        );
-      }
+      // Missing/blocked profile must not become a fake active user.
+      if (data == null) return null;
       return AppUser.fromJson(data);
     } on PostgrestException catch (error) {
       AppLogger.error('Profile load failed', error);

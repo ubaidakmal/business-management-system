@@ -1,4 +1,5 @@
 import '../core/utils/formatters.dart';
+import '../l10n/app_localizations.dart';
 import '../models/report.dart';
 import '../models/stock_movement.dart';
 import '../services/settings_service.dart';
@@ -8,58 +9,69 @@ import 'report_export_data.dart';
 abstract final class ReportExportBuilders {
   static String get _businessName => SettingsService.cachedBusinessName;
 
-  static String dateRangeFilter(DateTime? from, DateTime? to) {
-    if (from == null && to == null) return 'Date: All';
-    return 'Date: ${Formatters.date(from)} → ${Formatters.date(to)}';
+  static String dateRangeFilter(
+    AppLocalizations l10n,
+    DateTime? from,
+    DateTime? to,
+  ) {
+    if (from == null && to == null) return l10n.dateAll;
+    return l10n.dateRange(Formatters.date(from), Formatters.date(to));
   }
 
-  static String companyFilter(String? companyId, String? companyName) {
-    if (companyId == null || companyId.isEmpty) return 'Company: All';
-    return 'Company: ${companyName ?? companyId}';
+  static String companyFilter(
+    AppLocalizations l10n,
+    String? companyId,
+    String? companyName,
+  ) {
+    if (companyId == null || companyId.isEmpty) return l10n.companyAll;
+    return l10n.companyFilter(companyName ?? companyId);
   }
 
   static ReportExportData sales({
+    required AppLocalizations l10n,
     required SalesReportData data,
     required List<String> filters,
   }) {
     return ReportExportData(
       businessName: _businessName,
-      title: 'Sales Report',
+      title: l10n.salesReport,
       fileStem: 'sales_report',
       filters: filters,
       summary: [
         ReportExportMetric(
-          label: 'Total Sales',
+          label: l10n.totalSales,
           value: Formatters.money(data.summary.salesTotal),
         ),
         ReportExportMetric(
-          label: 'Number of Sales',
+          label: l10n.numberOfSales,
           value: '${data.summary.salesCount}',
         ),
         ReportExportMetric(
-          label: 'Total COGS',
+          label: l10n.totalCogs,
           value: Formatters.money(data.summary.totalCogs),
         ),
         ReportExportMetric(
-          label: 'Total Profit',
+          label: l10n.totalProfit,
           value: Formatters.money(data.summary.totalProfit),
         ),
       ],
-      columns: const [
-        'Invoice',
-        'Company',
-        'Date',
-        'Items',
-        'Revenue',
-        'COGS',
-        'Profit',
-        'Status',
+      columns: [
+        l10n.invoice,
+        l10n.company,
+        l10n.date,
+        l10n.items,
+        l10n.revenue,
+        l10n.cogs,
+        l10n.profit,
+        l10n.status,
       ],
       rows: [
         for (final row in data.rows)
           [
-            row.invoiceNumber?.isNotEmpty == true ? row.invoiceNumber! : '—',
-            row.companyName ?? '—',
+            row.invoiceNumber?.isNotEmpty == true
+                ? row.invoiceNumber!
+                : l10n.emDash,
+            row.companyName ?? l10n.emDash,
             Formatters.date(row.saleDate),
             '${row.itemsCount}',
             Formatters.money(row.revenue),
@@ -72,30 +84,39 @@ abstract final class ReportExportBuilders {
   }
 
   static ReportExportData purchases({
+    required AppLocalizations l10n,
     required PurchasesReportData data,
     required List<String> filters,
   }) {
     return ReportExportData(
       businessName: _businessName,
-      title: 'Purchase Report',
+      title: l10n.purchaseReport,
       fileStem: 'purchases_report',
       filters: filters,
       summary: [
         ReportExportMetric(
-          label: 'Purchase Total',
+          label: l10n.purchasesTotal,
           value: Formatters.money(data.summary.purchasesTotal),
         ),
         ReportExportMetric(
-          label: 'Number of Purchases',
+          label: l10n.numberOfPurchases,
           value: '${data.summary.purchasesCount}',
         ),
       ],
-      columns: const ['Invoice', 'Company', 'Date', 'Items', 'Total'],
+      columns: [
+        l10n.invoice,
+        l10n.company,
+        l10n.date,
+        l10n.items,
+        l10n.total,
+      ],
       rows: [
         for (final row in data.rows)
           [
-            row.invoiceNumber?.isNotEmpty == true ? row.invoiceNumber! : '—',
-            row.companyName ?? '—',
+            row.invoiceNumber?.isNotEmpty == true
+                ? row.invoiceNumber!
+                : l10n.emDash,
+            row.companyName ?? l10n.emDash,
             Formatters.date(row.purchaseDate),
             '${row.itemsCount}',
             Formatters.money(row.totalAmount),
@@ -105,45 +126,48 @@ abstract final class ReportExportBuilders {
   }
 
   static ReportExportData profit({
+    required AppLocalizations l10n,
     required ProfitReportData data,
     required List<String> filters,
   }) {
     return ReportExportData(
       businessName: _businessName,
-      title: 'Profit Report',
+      title: l10n.profitReport,
       fileStem: 'profit_report',
       filters: filters,
       summary: [
         ReportExportMetric(
-          label: 'Revenue',
+          label: l10n.revenue,
           value: Formatters.money(data.summary.revenue),
         ),
         ReportExportMetric(
-          label: 'COGS',
+          label: l10n.cogs,
           value: Formatters.money(data.summary.totalCogs),
         ),
         ReportExportMetric(
-          label: 'Gross Profit',
+          label: l10n.grossProfit,
           value: Formatters.money(data.summary.grossProfit),
         ),
         ReportExportMetric(
-          label: 'Number of Sales',
+          label: l10n.numberOfSales,
           value: '${data.summary.salesCount}',
         ),
       ],
-      columns: const [
-        'Invoice',
-        'Company',
-        'Date',
-        'Revenue',
-        'COGS',
-        'Profit',
+      columns: [
+        l10n.invoice,
+        l10n.company,
+        l10n.date,
+        l10n.revenue,
+        l10n.cogs,
+        l10n.profit,
       ],
       rows: [
         for (final row in data.rows)
           [
-            row.invoiceNumber?.isNotEmpty == true ? row.invoiceNumber! : '—',
-            row.companyName ?? '—',
+            row.invoiceNumber?.isNotEmpty == true
+                ? row.invoiceNumber!
+                : l10n.emDash,
+            row.companyName ?? l10n.emDash,
             Formatters.date(row.saleDate),
             Formatters.money(row.revenue),
             Formatters.money(row.totalCogs),
@@ -154,6 +178,7 @@ abstract final class ReportExportBuilders {
   }
 
   static ReportExportData stock({
+    required AppLocalizations l10n,
     required List<StockBalance> items,
     required List<String> filters,
   }) {
@@ -163,30 +188,33 @@ abstract final class ReportExportBuilders {
     final outCount = items.where((i) => i.currentStock <= 0).length;
     return ReportExportData(
       businessName: _businessName,
-      title: 'Stock Report',
+      title: l10n.stockReport,
       fileStem: 'stock_report',
       filters: filters,
       summary: [
-        ReportExportMetric(label: 'Products shown', value: '${items.length}'),
-        ReportExportMetric(label: 'Low stock', value: '$lowCount'),
-        ReportExportMetric(label: 'Out of stock', value: '$outCount'),
+        ReportExportMetric(
+          label: l10n.productsShown,
+          value: '${items.length}',
+        ),
+        ReportExportMetric(label: l10n.lowStock, value: '$lowCount'),
+        ReportExportMetric(label: l10n.outOfStock, value: '$outCount'),
       ],
-      columns: const [
-        'Product',
-        'SKU',
-        'Company',
-        'Category',
-        'Current Stock',
-        'Reorder Level',
-        'Status',
+      columns: [
+        l10n.product,
+        l10n.sku,
+        l10n.company,
+        l10n.category,
+        l10n.currentStock,
+        l10n.reorderLevel,
+        l10n.status,
       ],
       rows: [
         for (final row in items)
           [
             row.productName,
-            row.sku?.isNotEmpty == true ? row.sku! : '—',
-            row.companyName ?? '—',
-            row.category?.isNotEmpty == true ? row.category! : '—',
+            row.sku?.isNotEmpty == true ? row.sku! : l10n.emDash,
+            row.companyName ?? l10n.emDash,
+            row.category?.isNotEmpty == true ? row.category! : l10n.emDash,
             Formatters.quantity(row.currentStock),
             Formatters.quantity(row.reorderLevel),
             stockStatusLabel(
@@ -199,51 +227,52 @@ abstract final class ReportExportBuilders {
   }
 
   static ReportExportData products({
+    required AppLocalizations l10n,
     required ProductReportData data,
     required List<String> filters,
   }) {
     return ReportExportData(
       businessName: _businessName,
-      title: 'Product Report',
+      title: l10n.productReport,
       fileStem: 'product_report',
       filters: filters,
       summary: [
         ReportExportMetric(
-          label: 'Products',
+          label: l10n.productsCount,
           value: '${data.summary.productCount}',
         ),
         ReportExportMetric(
-          label: 'Qty Sold',
+          label: l10n.qtySold,
           value: Formatters.quantity(data.summary.quantitySold),
         ),
         ReportExportMetric(
-          label: 'Revenue',
+          label: l10n.revenue,
           value: Formatters.money(data.summary.revenue),
         ),
         ReportExportMetric(
-          label: 'COGS',
+          label: l10n.cogs,
           value: Formatters.money(data.summary.totalCogs),
         ),
         ReportExportMetric(
-          label: 'Profit',
+          label: l10n.profit,
           value: Formatters.money(data.summary.totalProfit),
         ),
       ],
-      columns: const [
-        'Product',
-        'SKU',
-        'Company',
-        'Qty Sold',
-        'Revenue',
-        'COGS',
-        'Profit',
+      columns: [
+        l10n.product,
+        l10n.sku,
+        l10n.company,
+        l10n.qtySold,
+        l10n.revenue,
+        l10n.cogs,
+        l10n.profit,
       ],
       rows: [
         for (final row in data.rows)
           [
             row.productName,
-            row.sku?.isNotEmpty == true ? row.sku! : '—',
-            row.companyName ?? '—',
+            row.sku?.isNotEmpty == true ? row.sku! : l10n.emDash,
+            row.companyName ?? l10n.emDash,
             Formatters.quantity(row.quantitySold),
             Formatters.money(row.revenue),
             Formatters.money(row.totalCogs),
@@ -254,45 +283,46 @@ abstract final class ReportExportBuilders {
   }
 
   static ReportExportData companies({
+    required AppLocalizations l10n,
     required CompanyReportData data,
     required List<String> filters,
   }) {
     return ReportExportData(
       businessName: _businessName,
-      title: 'Company Report',
+      title: l10n.companyReport,
       fileStem: 'company_report',
       filters: filters,
       summary: [
         ReportExportMetric(
-          label: 'Companies',
+          label: l10n.companiesTitle,
           value: '${data.summary.companyCount}',
         ),
         ReportExportMetric(
-          label: 'Sales Total',
+          label: l10n.salesTotal,
           value: Formatters.money(data.summary.salesTotal),
         ),
         ReportExportMetric(
-          label: 'Purchases Total',
+          label: l10n.purchasesTotal,
           value: Formatters.money(data.summary.purchasesTotal),
         ),
         ReportExportMetric(
-          label: 'Profit Total',
+          label: l10n.profitTotal,
           value: Formatters.money(data.summary.profitTotal),
         ),
       ],
-      columns: const [
-        'Company',
-        'Code',
-        'Sales',
-        'Purchases',
-        'Profit',
-        'Products',
+      columns: [
+        l10n.company,
+        l10n.code,
+        l10n.navSales,
+        l10n.navPurchases,
+        l10n.profit,
+        l10n.productsCount,
       ],
       rows: [
         for (final row in data.rows)
           [
             row.companyName,
-            row.code?.isNotEmpty == true ? row.code! : '—',
+            row.code?.isNotEmpty == true ? row.code! : l10n.emDash,
             Formatters.money(row.salesTotal),
             Formatters.money(row.purchasesTotal),
             Formatters.money(row.profitTotal),

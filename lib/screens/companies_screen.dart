@@ -11,6 +11,7 @@ import '../models/company.dart';
 import '../state/app_status.dart';
 import '../state/auth_controller.dart';
 import '../state/companies_controller.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_feedback.dart';
 import '../widgets/app_fields.dart';
@@ -92,10 +93,10 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
   Future<void> _confirmDelete(Company company) async {
     final ok = await AppDialog.confirm(
       context,
-      title: 'Delete company',
+      title: context.l10n.delete,
       message:
           'Permanently delete ${company.name}? Prefer deactivation if this company may be used later.',
-      confirmLabel: 'Delete',
+      confirmLabel: context.l10n.delete,
     );
     if (!ok) return;
     final success = await _controller.delete(company);
@@ -109,20 +110,21 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
     final isAdmin = AuthScope.of(context).user?.isAdmin == true;
 
     return AppScaffold(
-      title: 'Companies',
+      title: l10n.companiesTitle,
       route: AppRoutes.companies,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppSectionHeader(
-            title: 'Companies',
+            title: l10n.companiesTitle,
             subtitle: 'Manage business partners and suppliers.',
             action: AppButton(
-              label: 'Add Company',
+              label: l10n.addCompany,
               expanded: false,
               icon: Icons.add,
               onPressed: () => _openForm(),
@@ -145,13 +147,13 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
               SizedBox(
                 width: desktop ? 180 : double.infinity,
                 child: AppDropdown<bool?>(
-                  label: 'Status',
+                  label: l10n.status,
                   value: _controller.activeFilter,
-                  hint: 'All statuses',
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('All')),
-                    DropdownMenuItem(value: true, child: Text('Active')),
-                    DropdownMenuItem(value: false, child: Text('Inactive')),
+                  hint: l10n.all,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
+                    DropdownMenuItem(value: true, child: Text(l10n.active)),
+                    DropdownMenuItem(value: false, child: Text(l10n.inactive)),
                   ],
                   onChanged: _controller.setActiveFilter,
                 ),
@@ -178,10 +180,11 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
       );
     }
     if (_controller.status.isEmpty) {
+      final l10n = context.l10n;
       return AppEmptyState(
-        title: 'No companies yet',
+        title: l10n.noCompaniesYet,
         message: 'Add your first company to get started.',
-        actionLabel: 'Add Company',
+        actionLabel: l10n.addCompany,
         onAction: () => _openForm(),
       );
     }
@@ -190,29 +193,34 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
       return AppCard(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text('Company', style: AppTextStyles.label),
-                  ),
-                  Expanded(child: Text('Code', style: AppTextStyles.label)),
-                  Expanded(
-                    flex: 2,
-                    child: Text('Contact', style: AppTextStyles.label),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text('Location', style: AppTextStyles.label),
-                  ),
-                  Expanded(child: Text('Status', style: AppTextStyles.label)),
-                  SizedBox(
-                    width: 120,
-                    child: Text('Actions', style: AppTextStyles.label),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Builder(
+                builder: (context) {
+                  final l10n = context.l10n;
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Text(l10n.company, style: AppTextStyles.label),
+                      ),
+                      Expanded(child: Text(l10n.code, style: AppTextStyles.label)),
+                      Expanded(
+                        flex: 2,
+                        child: Text(l10n.phone, style: AppTextStyles.label),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(l10n.address, style: AppTextStyles.label),
+                      ),
+                      Expanded(child: Text(l10n.status, style: AppTextStyles.label)),
+                      SizedBox(
+                        width: 120,
+                        child: Text(l10n.actions, style: AppTextStyles.label),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             const Divider(height: 1),
@@ -254,7 +262,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
                     ),
                   ),
                   AppBadge(
-                    label: company.isActive ? 'Active' : 'Inactive',
+                    label: company.isActive ? context.l10n.active : context.l10n.inactive,
                     type: company.isActive
                         ? AppBadgeType.success
                         : AppBadgeType.neutral,
@@ -273,7 +281,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
                 spacing: 8,
                 children: [
                   AppOutlinedButton(
-                    label: 'Edit',
+                    label: context.l10n.edit,
                     expanded: false,
                     onPressed: () => _openForm(companyId: company.id),
                   ),
@@ -313,7 +321,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
             ),
             Expanded(
               child: Text(
-                company.code?.isNotEmpty == true ? company.code! : '—',
+                company.code?.isNotEmpty == true ? company.code! : context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -340,7 +348,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: AppBadge(
-                  label: company.isActive ? 'Active' : 'Inactive',
+                  label: company.isActive ? context.l10n.active : context.l10n.inactive,
                   type: company.isActive
                       ? AppBadgeType.success
                       : AppBadgeType.neutral,
@@ -352,7 +360,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    tooltip: 'Edit',
+                    tooltip: context.l10n.edit,
                     onPressed: () => _openForm(companyId: company.id),
                     icon: const Icon(Icons.edit_outlined, size: 20),
                   ),
@@ -368,7 +376,7 @@ class _CompaniesScreenState extends State<CompaniesScreen> {
                   ),
                   if (isAdmin)
                     IconButton(
-                      tooltip: 'Delete',
+                      tooltip: context.l10n.delete,
                       onPressed: () => _confirmDelete(company),
                       icon: const Icon(
                         Icons.delete_outline,

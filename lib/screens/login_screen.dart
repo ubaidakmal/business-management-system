@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
-import '../core/constants/app_strings.dart';
 import '../core/routes/app_router.dart';
 import '../core/theme/app_text_styles.dart';
 import '../core/validators/validators.dart';
 import '../state/auth_controller.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_fields.dart';
 import '../widgets/auth_form_shell.dart';
@@ -27,7 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AuthScope.read(context).clearError();
+      final auth = AuthScope.read(context);
+      final message = auth.errorMessage ?? '';
+      // Keep disabled-account / verify failures visible after redirect to login.
+      if (message.contains('disabled') || message.contains('verify')) return;
+      auth.clearError();
     });
   }
 
@@ -57,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = AuthScope.of(context);
+    final l10n = context.l10n;
 
     return AuthFormShell(
       child: Form(
@@ -64,16 +69,16 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(AppStrings.appName, style: AppTextStyles.headingLarge),
+            Text(l10n.appName, style: AppTextStyles.headingLarge),
             const SizedBox(height: 8),
-            Text(AppStrings.tagline, style: AppTextStyles.bodySmall),
+            Text(l10n.tagline, style: AppTextStyles.bodySmall),
             const SizedBox(height: 28),
-            Text(AppStrings.loginTitle, style: AppTextStyles.headingSmall),
+            Text(l10n.loginTitle, style: AppTextStyles.headingSmall),
             const SizedBox(height: 4),
-            Text(AppStrings.loginSubtitle, style: AppTextStyles.bodySmall),
+            Text(l10n.loginSubtitle, style: AppTextStyles.bodySmall),
             const SizedBox(height: 20),
             AppTextField(
-              label: AppStrings.emailLabel,
+              label: l10n.emailLabel,
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -82,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: AppStrings.passwordLabel,
+              label: l10n.passwordLabel,
               controller: _password,
               obscureText: _hidePassword,
               textInputAction: TextInputAction.done,
@@ -106,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context,
                         AppRoutes.forgotPassword,
                       ),
-                child: const Text(AppStrings.forgotPassword),
+                child: Text(l10n.forgotPassword),
               ),
             ),
             if (auth.errorMessage != null) ...[
@@ -118,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
             const SizedBox(height: 12),
             AppButton(
-              label: AppStrings.signIn,
+              label: l10n.signIn,
               isLoading: auth.isLoading,
               onPressed: auth.isLoading ? null : _submit,
             ),

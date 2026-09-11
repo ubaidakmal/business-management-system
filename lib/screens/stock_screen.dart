@@ -14,6 +14,7 @@ import '../services/stock_service.dart';
 import '../state/app_status.dart';
 import '../state/auth_controller.dart';
 import '../state/stock_controller.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_fields.dart';
 import '../widgets/app_scaffold.dart';
@@ -93,22 +94,23 @@ class _StockScreenState extends State<StockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final desktop = AppResponsive.isDesktop(context);
     final isAdmin = AuthScope.of(context).user?.isAdmin == true;
 
     return AppScaffold(
-      title: 'Stock',
+      title: l10n.stockTitle,
       route: AppRoutes.stock,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AppSectionHeader(
-            title: 'Inventory',
+            title: l10n.stockInventory,
             subtitle:
                 'Current stock = opening stock + movements. Costing comes later.',
             action: isAdmin
                 ? AppButton(
-                    label: 'Adjust stock',
+                    label: l10n.adjustStock,
                     expanded: false,
                     icon: Icons.tune,
                     onPressed: _openAdjustment,
@@ -131,11 +133,11 @@ class _StockScreenState extends State<StockScreen> {
               SizedBox(
                 width: desktop ? 200 : double.infinity,
                 child: AppDropdown<String?>(
-                  label: 'Company',
+                  label: l10n.company,
                   value: _controller.companyId,
-                  hint: 'All companies',
+                  hint: l10n.allCompanies,
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
                     for (final company in _companyOptions)
                       DropdownMenuItem(
                         value: company.id,
@@ -151,11 +153,11 @@ class _StockScreenState extends State<StockScreen> {
               SizedBox(
                 width: desktop ? 180 : double.infinity,
                 child: AppDropdown<String?>(
-                  label: 'Category',
+                  label: l10n.category,
                   value: _controller.category,
-                  hint: 'All',
+                  hint: l10n.all,
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
                     for (final category in _categories)
                       DropdownMenuItem(value: category, child: Text(category)),
                   ],
@@ -165,19 +167,19 @@ class _StockScreenState extends State<StockScreen> {
               SizedBox(
                 width: desktop ? 150 : double.infinity,
                 child: AppDropdown<bool?>(
-                  label: 'Status',
+                  label: l10n.status,
                   value: _controller.isActive,
-                  hint: 'All',
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('All')),
-                    DropdownMenuItem(value: true, child: Text('Active')),
-                    DropdownMenuItem(value: false, child: Text('Inactive')),
+                  hint: l10n.all,
+                  items: [
+                    DropdownMenuItem(value: null, child: Text(l10n.all)),
+                    DropdownMenuItem(value: true, child: Text(l10n.active)),
+                    DropdownMenuItem(value: false, child: Text(l10n.inactive)),
                   ],
                   onChanged: _controller.setActiveFilter,
                 ),
               ),
               FilterChip(
-                label: const Text('Low stock'),
+                label: Text(l10n.lowStock),
                 selected: _controller.lowStockOnly,
                 onSelected: (value) => _controller.setLowStockOnly(value),
               ),
@@ -201,8 +203,8 @@ class _StockScreenState extends State<StockScreen> {
       );
     }
     if (_controller.status.isEmpty) {
-      return const AppEmptyState(
-        title: 'No stock rows',
+      return AppEmptyState(
+        title: context.l10n.noStockRows,
         message: 'Add products first, then complete purchases or adjust stock.',
       );
     }
@@ -211,23 +213,28 @@ class _StockScreenState extends State<StockScreen> {
       return AppCard(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text('Product', style: AppTextStyles.label),
-                  ),
-                  Expanded(child: Text('SKU', style: AppTextStyles.label)),
-                  Expanded(
-                    flex: 2,
-                    child: Text('Company', style: AppTextStyles.label),
-                  ),
-                  Expanded(child: Text('Stock', style: AppTextStyles.label)),
-                  Expanded(child: Text('Reorder', style: AppTextStyles.label)),
-                  Expanded(child: Text('Status', style: AppTextStyles.label)),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Builder(
+                builder: (context) {
+                  final l10n = context.l10n;
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(l10n.product, style: AppTextStyles.label),
+                      ),
+                      Expanded(child: Text(l10n.sku, style: AppTextStyles.label)),
+                      Expanded(
+                        flex: 2,
+                        child: Text(l10n.company, style: AppTextStyles.label),
+                      ),
+                      Expanded(child: Text(l10n.stockTitle, style: AppTextStyles.label)),
+                      Expanded(child: Text(l10n.reorderLevel, style: AppTextStyles.label)),
+                      Expanded(child: Text(l10n.status, style: AppTextStyles.label)),
+                    ],
+                  );
+                },
               ),
             ),
             const Divider(height: 1),
@@ -264,11 +271,11 @@ class _StockScreenState extends State<StockScreen> {
                     ),
                   ),
                   if (item.isLowStock)
-                    const AppBadge(label: 'Low', type: AppBadgeType.warning),
+                    AppBadge(label: context.l10n.low, type: AppBadgeType.warning),
                 ],
               ),
               const SizedBox(height: 6),
-              Text(item.companyName ?? '—', style: AppTextStyles.bodySmall),
+              Text(item.companyName ?? context.l10n.emDash, style: AppTextStyles.bodySmall),
               if (item.sku?.isNotEmpty == true)
                 Text('SKU ${item.sku}', style: AppTextStyles.bodySmall),
               const SizedBox(height: 8),
@@ -302,7 +309,7 @@ class _StockScreenState extends State<StockScreen> {
             ),
             Expanded(
               child: Text(
-                item.sku?.isNotEmpty == true ? item.sku! : '—',
+                item.sku?.isNotEmpty == true ? item.sku! : context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -310,7 +317,7 @@ class _StockScreenState extends State<StockScreen> {
             Expanded(
               flex: 2,
               child: Text(
-                item.companyName ?? '—',
+                item.companyName ?? context.l10n.emDash,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -321,7 +328,7 @@ class _StockScreenState extends State<StockScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: AppBadge(
-                  label: item.isLowStock ? 'Low' : 'OK',
+                  label: item.isLowStock ? context.l10n.low : context.l10n.inStock,
                   type: item.isLowStock
                       ? AppBadgeType.warning
                       : AppBadgeType.success,

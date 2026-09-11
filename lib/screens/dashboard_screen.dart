@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
-import '../core/constants/app_strings.dart';
 import '../core/routes/app_router.dart';
 import '../core/theme/app_text_styles.dart';
 import '../core/utils/formatters.dart';
@@ -13,6 +12,8 @@ import '../services/company_service.dart';
 import '../state/app_status.dart';
 import '../state/auth_controller.dart';
 import '../state/dashboard_controller.dart';
+import '../l10n/app_localizations.dart';
+import '../state/locale_controller.dart';
 import '../widgets/app_buttons.dart';
 import '../widgets/app_fields.dart';
 import '../widgets/app_scaffold.dart';
@@ -75,16 +76,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final auth = AuthScope.of(context);
     final name = auth.user?.name?.trim();
     final greeting = (name == null || name.isEmpty)
-        ? AppStrings.welcome
-        : '${AppStrings.welcome}, $name';
+        ? l10n.welcome
+        : '${l10n.welcome}, $name';
     final desktop = AppResponsive.isDesktop(context);
     final tablet = AppResponsive.isTablet(context);
 
     return AppScaffold(
-      title: 'Dashboard',
+      title: l10n.dashboardTitle,
       route: AppRoutes.dashboard,
       body: RefreshIndicator(
         onRefresh: _controller.load,
@@ -117,10 +119,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildBody({required bool desktop, required bool tablet}) {
+    final l10n = context.l10n;
     if (_controller.status.isLoading && _controller.data == null) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 48),
-        child: AppLoading(message: 'Loading dashboard…'),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: AppLoading(message: l10n.dashboardLoading),
       );
     }
     if (_controller.status.hasError && _controller.data == null) {
@@ -132,9 +135,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final data = _controller.data;
     if (data == null) {
-      return const AppEmptyState(
-        title: 'No dashboard data',
-        message: 'Pull to refresh or adjust filters.',
+      return AppEmptyState(
+        title: l10n.dashboardEmptyTitle,
+        message: l10n.dashboardEmptyMessage,
       );
     }
 
@@ -160,9 +163,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const AppSectionHeader(
-                        title: 'Sales & profit trend',
-                        subtitle: 'Completed sales in the selected range',
+                      AppSectionHeader(
+                        title: l10n.salesAndProfitTrend,
+                        subtitle: l10n.salesAndProfitTrendSubtitle,
                       ),
                       const SizedBox(height: AppSizes.md),
                       DashboardTrendChart(points: data.trend),
@@ -185,9 +188,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const AppSectionHeader(
-                  title: 'Sales & profit trend',
-                  subtitle: 'Completed sales in the selected range',
+                AppSectionHeader(
+                  title: l10n.salesAndProfitTrend,
+                  subtitle: l10n.salesAndProfitTrendSubtitle,
                 ),
                 const SizedBox(height: AppSizes.md),
                 if (data.trend.length > 14)
@@ -244,6 +247,7 @@ class _FiltersBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Wrap(
       spacing: AppSizes.md,
       runSpacing: AppSizes.md,
@@ -251,7 +255,7 @@ class _FiltersBar extends StatelessWidget {
       children: [
         for (final preset in DashboardRangePreset.values)
           FilterChip(
-            label: Text(_presetLabel(preset)),
+            label: Text(_presetLabel(l10n, preset)),
             selected: controller.preset == preset,
             onSelected: (_) {
               if (preset == DashboardRangePreset.custom) {
@@ -268,11 +272,11 @@ class _FiltersBar extends StatelessWidget {
         SizedBox(
           width: desktop ? 220 : double.infinity,
           child: AppDropdown<String?>(
-            label: 'Company',
+            label: l10n.company,
             value: controller.companyId,
-            hint: 'All companies',
+            hint: l10n.allCompanies,
             items: [
-              const DropdownMenuItem(value: null, child: Text('All')),
+              DropdownMenuItem(value: null, child: Text(l10n.all)),
               for (final company in companies)
                 DropdownMenuItem(
                   value: company.id,
@@ -284,19 +288,19 @@ class _FiltersBar extends StatelessWidget {
         ),
         AppIconButton(
           icon: Icons.refresh,
-          tooltip: 'Refresh',
+          tooltip: l10n.refresh,
           onPressed: controller.load,
         ),
       ],
     );
   }
 
-  String _presetLabel(DashboardRangePreset preset) {
+  String _presetLabel(AppLocalizations l10n, DashboardRangePreset preset) {
     return switch (preset) {
-      DashboardRangePreset.today => 'Today',
-      DashboardRangePreset.week => 'This week',
-      DashboardRangePreset.month => 'This month',
-      DashboardRangePreset.custom => 'Custom',
+      DashboardRangePreset.today => l10n.today,
+      DashboardRangePreset.week => l10n.thisWeek,
+      DashboardRangePreset.month => l10n.thisMonth,
+      DashboardRangePreset.custom => l10n.custom,
     };
   }
 }
@@ -314,45 +318,46 @@ class _KpiGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final cards = [
       AppStatCard(
-        label: 'Total Sales',
+        label: l10n.totalSales,
         value: Formatters.money(summary.salesTotal),
         icon: Icons.point_of_sale_outlined,
         color: AppColors.info,
       ),
       AppStatCard(
-        label: 'Total Purchases',
+        label: l10n.totalPurchases,
         value: Formatters.money(summary.purchasesTotal),
         icon: Icons.shopping_cart_outlined,
         color: AppColors.warning,
       ),
       AppStatCard(
-        label: 'Total Revenue',
+        label: l10n.totalRevenue,
         value: Formatters.money(summary.revenue),
         icon: Icons.payments_outlined,
         color: AppColors.info,
       ),
       AppStatCard(
-        label: 'Total COGS',
+        label: l10n.totalCogs,
         value: Formatters.money(summary.totalCogs),
         icon: Icons.inventory_outlined,
         color: AppColors.warning,
       ),
       AppStatCard(
-        label: 'Total Profit',
+        label: l10n.totalProfit,
         value: Formatters.money(summary.totalProfit),
         icon: Icons.trending_up,
         color: AppColors.success,
       ),
       AppStatCard(
-        label: 'Number of Sales',
+        label: l10n.numberOfSales,
         value: '${summary.salesCount}',
         icon: Icons.receipt_long_outlined,
         color: AppColors.info,
       ),
       AppStatCard(
-        label: 'Number of Purchases',
+        label: l10n.numberOfPurchases,
         value: '${summary.purchasesCount}',
         icon: Icons.receipt_outlined,
         color: AppColors.warning,
@@ -389,13 +394,14 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppSectionHeader(
-            title: 'Quick actions',
-            subtitle: 'Common shortcuts',
+          AppSectionHeader(
+            title: l10n.quickActions,
+            subtitle: l10n.quickActionsSubtitle,
           ),
           const SizedBox(height: AppSizes.md),
           Wrap(
@@ -403,32 +409,32 @@ class _QuickActions extends StatelessWidget {
             runSpacing: AppSizes.md,
             children: [
               AppButton(
-                label: 'Add Sale',
+                label: l10n.addSale,
                 expanded: !desktop,
                 icon: Icons.add,
                 onPressed: () =>
                     Navigator.pushNamed(context, AppRoutes.saleForm),
               ),
               AppOutlinedButton(
-                label: 'Add Purchase',
+                label: l10n.addPurchase,
                 expanded: !desktop,
                 onPressed: () =>
                     Navigator.pushNamed(context, AppRoutes.purchaseForm),
               ),
               AppOutlinedButton(
-                label: 'Add Product',
+                label: l10n.addProduct,
                 expanded: !desktop,
                 onPressed: () =>
                     Navigator.pushNamed(context, AppRoutes.productForm),
               ),
               AppOutlinedButton(
-                label: 'View Stock',
+                label: l10n.viewStock,
                 expanded: !desktop,
                 onPressed: () =>
                     Navigator.pushReplacementNamed(context, AppRoutes.stock),
               ),
               AppOutlinedButton(
-                label: 'Companies',
+                label: l10n.companiesTitle,
                 expanded: !desktop,
                 onPressed: () => Navigator.pushReplacementNamed(
                   context,
@@ -436,7 +442,7 @@ class _QuickActions extends StatelessWidget {
                 ),
               ),
               AppOutlinedButton(
-                label: 'Reports',
+                label: l10n.reportsTitle,
                 expanded: !desktop,
                 onPressed: () =>
                     Navigator.pushReplacementNamed(context, AppRoutes.reports),
@@ -457,37 +463,38 @@ class _InventoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppSectionHeader(
-            title: 'Inventory summary',
-            subtitle: 'From product stock balances',
-          ),
+          AppSectionHeader(title: l10n.inventory),
           const SizedBox(height: AppSizes.md),
           Wrap(
             spacing: AppSizes.md,
             runSpacing: AppSizes.md,
             children: [
-              _MiniStat(label: 'Products', value: '${inventory.totalProducts}'),
               _MiniStat(
-                label: 'Low stock',
+                label: l10n.productsCount,
+                value: '${inventory.totalProducts}',
+              ),
+              _MiniStat(
+                label: l10n.lowStock,
                 value: '${inventory.lowStockCount}',
                 color: AppColors.warning,
               ),
               _MiniStat(
-                label: 'Out of stock',
+                label: l10n.outOfStock,
                 value: '${inventory.outOfStockCount}',
                 color: AppColors.error,
               ),
             ],
           ),
           const SizedBox(height: AppSizes.lg),
-          Text('Low-stock products', style: AppTextStyles.label),
+          Text(l10n.lowStock, style: AppTextStyles.label),
           const SizedBox(height: AppSizes.sm),
           if (lowStock.isEmpty)
-            Text('No low-stock products.', style: AppTextStyles.bodySmall)
+            Text(l10n.emptyTitle, style: AppTextStyles.bodySmall)
           else
             for (final item in lowStock)
               ListTile(
@@ -502,7 +509,7 @@ class _InventoryCard extends StatelessWidget {
                   [
                     if (item.sku != null && item.sku!.isNotEmpty) item.sku!,
                     if (item.companyName != null) item.companyName!,
-                    'Reorder ${Formatters.quantity(item.reorderLevel)}',
+                    '${l10n.reorderLevel} ${Formatters.quantity(item.reorderLevel)}',
                   ].join(' · '),
                   style: AppTextStyles.caption,
                   overflow: TextOverflow.ellipsis,
@@ -561,17 +568,18 @@ class _RecentSalesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppSectionHeader(
-            title: 'Recent sales',
-            subtitle: 'Completed only',
+          AppSectionHeader(
+            title: l10n.recentSales,
+            subtitle: l10n.completed,
           ),
           const SizedBox(height: AppSizes.sm),
           if (sales.isEmpty)
-            Text('No sales in this range.', style: AppTextStyles.bodySmall)
+            Text(l10n.noSalesYet, style: AppTextStyles.bodySmall)
           else
             for (final sale in sales)
               ListTile(
@@ -580,12 +588,12 @@ class _RecentSalesCard extends StatelessWidget {
                 title: Text(
                   sale.invoiceNumber?.isNotEmpty == true
                       ? sale.invoiceNumber!
-                      : 'Sale',
+                      : l10n.sale,
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
                   [
-                    sale.companyName ?? '—',
+                    sale.companyName ?? l10n.emDash,
                     Formatters.date(sale.saleDate),
                   ].join(' · '),
                   overflow: TextOverflow.ellipsis,
@@ -600,7 +608,7 @@ class _RecentSalesCard extends StatelessWidget {
                       style: AppTextStyles.label,
                     ),
                     Text(
-                      'P ${Formatters.money(sale.totalProfit)}',
+                      '${l10n.profit} ${Formatters.money(sale.totalProfit)}',
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.success,
                       ),
@@ -626,17 +634,18 @@ class _RecentPurchasesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AppSectionHeader(
-            title: 'Recent purchases',
-            subtitle: 'Completed only',
+          AppSectionHeader(
+            title: l10n.recentPurchases,
+            subtitle: l10n.completed,
           ),
           const SizedBox(height: AppSizes.sm),
           if (purchases.isEmpty)
-            Text('No purchases in this range.', style: AppTextStyles.bodySmall)
+            Text(l10n.noPurchasesYet, style: AppTextStyles.bodySmall)
           else
             for (final purchase in purchases)
               ListTile(
@@ -645,12 +654,12 @@ class _RecentPurchasesCard extends StatelessWidget {
                 title: Text(
                   purchase.invoiceNumber?.isNotEmpty == true
                       ? purchase.invoiceNumber!
-                      : 'Purchase',
+                      : l10n.purchase,
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
                   [
-                    purchase.companyName ?? '—',
+                    purchase.companyName ?? l10n.emDash,
                     Formatters.date(purchase.purchaseDate),
                   ].join(' · '),
                   overflow: TextOverflow.ellipsis,

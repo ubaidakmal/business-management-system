@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
-import '../core/constants/app_strings.dart';
 import '../core/theme/app_text_styles.dart';
+import '../state/locale_controller.dart';
 import 'app_buttons.dart';
 
 class AppLoading extends StatelessWidget {
@@ -24,7 +24,7 @@ class AppLoading extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Text(message ?? AppStrings.loading, style: AppTextStyles.bodySmall),
+          Text(message ?? context.l10n.loading, style: AppTextStyles.bodySmall),
         ],
       ),
     );
@@ -50,7 +50,7 @@ class AppEmptyState extends StatelessWidget {
     return _MessageState(
       icon: Icons.inbox_outlined,
       iconColor: AppColors.textSecondary,
-      title: title ?? AppStrings.emptyTitle,
+      title: title ?? context.l10n.emptyTitle,
       message: message,
       actionLabel: actionLabel,
       onAction: onAction,
@@ -67,12 +67,13 @@ class AppErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _MessageState(
       icon: Icons.error_outline,
       iconColor: AppColors.error,
-      title: title ?? AppStrings.errorTitle,
+      title: title ?? l10n.errorTitle,
       message: message,
-      actionLabel: onRetry == null ? null : AppStrings.retry,
+      actionLabel: onRetry == null ? null : l10n.retry,
       onAction: onRetry,
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../state/locale_controller.dart';
+
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_sizes.dart';
 import '../core/routes/app_router.dart';
@@ -94,15 +96,15 @@ class _PurchaseDetailScreenState extends State<PurchaseDetailScreen> {
     final purchase = _purchase;
 
     return AppScaffold(
-      title: 'Purchase Details',
+      title: context.l10n.purchaseDetails,
       route: AppRoutes.purchases,
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppLoading()
           : _error != null
           ? AppErrorState(message: _error!, onRetry: _load)
           : purchase == null
-          ? const AppEmptyState(
-              title: 'Purchase not found',
+          ? AppEmptyState(
+              title: context.l10n.purchaseNotFound,
               message: 'This purchase may have been removed.',
             )
           : ListView(

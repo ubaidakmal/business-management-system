@@ -6,7 +6,7 @@ Living project document. Update this file whenever a phase or meaningful change 
 
 Internal ERP-style app for companies, products, purchases, sales, stock, costing, profit, and reports.
 
-Current phase: **Phase 12 — Live Market Integration.** Advanced accounting / market platforms remain later.
+Current phase: **Phase 14 — Localization (EN / 繁體中文).** Advanced accounting / market platforms remain later.
 
 ## Stack
 
@@ -98,6 +98,23 @@ Flutter → Edge Function `fetch-market-rates` → External FX API → market_da
 - Market screen: rates, history trend, manual refresh
 - Admin market settings: enable + base/quote currencies
 
+## Security & Polish (Phase 13)
+
+- Purchases/sales (+ items) are **RPC-only** for writes (client INSERT/UPDATE/DELETE revoked)
+- Disabled users blocked by restrictive RLS + `require_active_user()` in client RPCs
+- Edge Function timeouts / empty-rate errors hardened
+- UI polish: consistent `AppLoading` / `AppErrorState`; auth profile failure signs out
+- Unused `cupertino_icons` removed
+
+## Localization (Phase 14)
+
+- Languages: English (default), Traditional Chinese Taiwan (`zh_TW` / 繁體中文)
+- Preference stored **locally** via `SharedPreferences` (not Supabase)
+- `LocaleService` + `LocaleController` + Settings → Language selector
+- ARB files under `lib/l10n/`; access via `context.l10n` / `AppStrings` bridge
+- Report PDF/Excel/Print column & metric **labels** follow the selected language (business data names stay as stored)
+- Packages: `flutter_localizations`, `intl`, `shared_preferences`
+
 ## Routing
 
 Protected: dashboard, companies, products, purchases, sales, stock, market, reports (+ sub-routes), settings (+ business/preferences/permissions/market), admin (+ users).
@@ -125,6 +142,19 @@ supabase functions deploy fetch-market-rates
 Test admin: `admin@bms.app` / `Password123!`
 
 ## Changelog
+
+### 2026-09-11 — Phase 14 Localization
+
+- English + 繁體中文 UI; local SharedPreferences language preference
+- Settings → Language; immediate switch + persist across restarts
+- Export labels localized; no business-logic or Supabase schema changes
+
+### 2026-09-11 — Phase 13 Security, Testing & Final Polish
+
+- Hardened RLS/grants: transactional writes RPC-only; active-user gates
+- Edge Function timeout + empty-rate handling
+- Auth/error/UI polish; removed unused `cupertino_icons`
+- Added security polish tests; analyze/test clean
 
 ### 2026-09-11 — Phase 12 Live Market Integration
 

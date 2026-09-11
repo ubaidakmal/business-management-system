@@ -5,6 +5,7 @@ import 'package:business_management_app/models/company.dart';
 import 'package:business_management_app/models/dashboard.dart';
 import 'package:business_management_app/models/product.dart';
 import 'package:business_management_app/models/purchase.dart';
+import 'package:business_management_app/models/report.dart';
 import 'package:business_management_app/models/sale.dart';
 import 'package:business_management_app/models/stock_movement.dart';
 
@@ -264,5 +265,79 @@ void main() {
     expect(data.inventory.lowStockCount, 1);
     expect(data.lowStock.single.reorderLevel, 5);
     expect(data.trend.single.salesTotal, 100);
+  });
+
+  test('SalesReportData.fromJson maps summary and rows', () {
+    final data = SalesReportData.fromJson({
+      'summary': {
+        'sales_total': '200',
+        'sales_count': 2,
+        'total_cogs': 80,
+        'total_profit': 120,
+      },
+      'rows': [
+        {
+          'id': 's1',
+          'invoice_number': 'INV-1',
+          'company_name': 'Acme',
+          'sale_date': '2026-09-10',
+          'status': 'completed',
+          'revenue': 200,
+          'total_cogs': 80,
+          'total_profit': 120,
+          'items_count': 3,
+        },
+      ],
+    });
+
+    expect(data.summary.salesTotal, 200);
+    expect(data.summary.salesCount, 2);
+    expect(data.summary.totalProfit, 120);
+    expect(data.rows.single.itemsCount, 3);
+    expect(data.rows.single.revenue, 200);
+  });
+
+  test('ProductReportData and CompanyReportData parse aggregates', () {
+    final products = ProductReportData.fromJson({
+      'summary': {
+        'quantity_sold': 10,
+        'revenue': 100,
+        'total_cogs': 40,
+        'total_profit': 60,
+        'product_count': 1,
+      },
+      'rows': [
+        {
+          'product_id': 'p1',
+          'product_name': 'Rice',
+          'quantity_sold': 10,
+          'revenue': 100,
+          'total_cogs': 40,
+          'total_profit': 60,
+        },
+      ],
+    });
+    final companies = CompanyReportData.fromJson({
+      'summary': {
+        'company_count': 1,
+        'sales_total': 100,
+        'purchases_total': 50,
+        'profit_total': 60,
+      },
+      'rows': [
+        {
+          'company_id': 'c1',
+          'company_name': 'Acme',
+          'sales_total': 100,
+          'purchases_total': 50,
+          'profit_total': 60,
+          'product_count': 2,
+        },
+      ],
+    });
+
+    expect(products.rows.single.totalProfit, 60);
+    expect(companies.summary.profitTotal, 60);
+    expect(companies.rows.single.productCount, 2);
   });
 }

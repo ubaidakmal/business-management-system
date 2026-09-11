@@ -7,6 +7,7 @@ import '../core/utils/app_error.dart';
 import '../core/utils/app_logger.dart';
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
+import '../services/settings_service.dart';
 import '../services/supabase_service.dart';
 import 'app_status.dart';
 
@@ -67,6 +68,12 @@ class AuthController extends ChangeNotifier {
     try {
       await _auth.signIn(email: email, password: password);
       await _loadProfile();
+      if (status != AuthStatus.authenticated) {
+        actionStatus = AppStatus.error;
+        errorMessage ??= 'Sign in failed.';
+        notifyListeners();
+        return false;
+      }
       actionStatus = AppStatus.success;
       notifyListeners();
       return true;
@@ -94,6 +101,7 @@ class AuthController extends ChangeNotifier {
     } finally {
       passwordRecovery = false;
       user = null;
+      SettingsService.clearCache();
       status = AuthStatus.unauthenticated;
       actionStatus = AppStatus.success;
       notifyListeners();
@@ -175,6 +183,7 @@ class AuthController extends ChangeNotifier {
     if (state.event == AuthChangeEvent.signedOut) {
       passwordRecovery = false;
       user = null;
+      SettingsService.clearCache();
       status = AuthStatus.unauthenticated;
       notifyListeners();
       return;
@@ -192,9 +201,21 @@ class AuthController extends ChangeNotifier {
   Future<void> _loadProfile() async {
     try {
       user = await _auth.fetchProfile();
+      if (user != null && !user!.isActive) {
+        await _auth.signOut();
+        user = null;
+        status = AuthStatus.unauthenticated;
+        errorMessage = 'This account is disabled. Contact an administrator.';
+        actionStatus = AppStatus.error;
+        notifyListeners();
+        return;
+      }
       status = user == null
           ? AuthStatus.unauthenticated
           : AuthStatus.authenticated;
+      if (status == AuthStatus.authenticated) {
+        unawaited(SettingsService().load());
+      }
     } catch (error) {
       AppLogger.error('Could not load profile', error);
       // Session exists — keep the user authenticated with auth email fallback.
@@ -206,6 +227,7 @@ class AuthController extends ChangeNotifier {
           name: authUser.email?.split('@').first,
         );
         status = AuthStatus.authenticated;
+        unawaited(SettingsService().load());
       } else {
         status = AuthStatus.unauthenticated;
         user = null;

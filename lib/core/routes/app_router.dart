@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../screens/admin/admin_overview_screen.dart';
+import '../../screens/admin/admin_user_detail_screen.dart';
+import '../../screens/admin/admin_users_screen.dart';
 import '../../screens/companies_screen.dart';
 import '../../screens/company_detail_screen.dart';
 import '../../screens/company_form_screen.dart';
 import '../../screens/dashboard_screen.dart';
 import '../../screens/forgot_password_screen.dart';
 import '../../screens/login_screen.dart';
+import '../../screens/market/market_screen.dart';
 import '../../screens/placeholder_screen.dart';
 import '../../screens/product_detail_screen.dart';
 import '../../screens/product_form_screen.dart';
@@ -13,10 +17,21 @@ import '../../screens/products_screen.dart';
 import '../../screens/purchase_detail_screen.dart';
 import '../../screens/purchase_form_screen.dart';
 import '../../screens/purchases_screen.dart';
+import '../../screens/reports/company_report_screen.dart';
+import '../../screens/reports/product_report_screen.dart';
+import '../../screens/reports/profit_report_screen.dart';
+import '../../screens/reports/purchases_report_screen.dart';
+import '../../screens/reports/reports_screen.dart';
+import '../../screens/reports/sales_report_screen.dart';
+import '../../screens/reports/stock_report_screen.dart';
 import '../../screens/reset_password_screen.dart';
 import '../../screens/sale_detail_screen.dart';
 import '../../screens/sale_form_screen.dart';
 import '../../screens/sales_screen.dart';
+import '../../screens/settings/business_settings_screen.dart';
+import '../../screens/settings/market_settings_screen.dart';
+import '../../screens/settings/permissions_settings_screen.dart';
+import '../../screens/settings/preferences_settings_screen.dart';
 import '../../screens/settings_screen.dart';
 import '../../screens/splash_screen.dart';
 import '../../screens/stock_adjustment_screen.dart';
@@ -58,8 +73,22 @@ abstract final class AppRoutes {
   static const stock = '/stock';
   static const stockDetail = '/stock/detail';
   static const stockAdjustment = '/stock/adjustment';
+  static const market = '/market';
   static const reports = '/reports';
+  static const reportsSales = '/reports/sales';
+  static const reportsPurchases = '/reports/purchases';
+  static const reportsProfit = '/reports/profit';
+  static const reportsStock = '/reports/stock';
+  static const reportsProducts = '/reports/products';
+  static const reportsCompanies = '/reports/companies';
   static const settings = '/settings';
+  static const settingsBusiness = '/settings/business';
+  static const settingsPreferences = '/settings/preferences';
+  static const settingsPermissions = '/settings/permissions';
+  static const settingsMarket = '/settings/market';
+  static const admin = '/admin';
+  static const adminUsers = '/admin/users';
+  static const adminUserDetail = '/admin/users/detail';
 
   static const publicRoutes = <String>{
     splash,
@@ -98,6 +127,11 @@ abstract final class AppRoutes {
       route: stock,
       label: 'Stock',
       icon: Icons.warehouse_outlined,
+    ),
+    AppDestination(
+      route: market,
+      label: 'Market',
+      icon: Icons.show_chart_outlined,
     ),
     AppDestination(
       route: reports,
@@ -159,7 +193,30 @@ abstract final class AppRouter {
       AppRoutes.stockAdjustment => AuthGate(
         child: StockAdjustmentScreen(productId: args as String?),
       ),
+      AppRoutes.market => const AuthGate(child: MarketScreen()),
+      AppRoutes.reports => const AuthGate(child: ReportsScreen()),
+      AppRoutes.reportsSales => const AuthGate(child: SalesReportScreen()),
+      AppRoutes.reportsPurchases => const AuthGate(
+        child: PurchasesReportScreen(),
+      ),
+      AppRoutes.reportsProfit => const AuthGate(child: ProfitReportScreen()),
+      AppRoutes.reportsStock => const AuthGate(child: StockReportScreen()),
+      AppRoutes.reportsProducts => const AuthGate(child: ProductReportScreen()),
+      AppRoutes.reportsCompanies => const AuthGate(
+        child: CompanyReportScreen(),
+      ),
       AppRoutes.settings => const AuthGate(child: SettingsScreen()),
+      AppRoutes.settingsBusiness => const BusinessSettingsScreen(),
+      AppRoutes.settingsPreferences => const PreferencesSettingsScreen(),
+      AppRoutes.settingsPermissions => const AuthGate(
+        child: PermissionsSettingsScreen(),
+      ),
+      AppRoutes.settingsMarket => const MarketSettingsScreen(),
+      AppRoutes.admin => const AdminOverviewScreen(),
+      AppRoutes.adminUsers => const AdminUsersScreen(),
+      AppRoutes.adminUserDetail => AdminUserDetailScreen(
+        userId: args as String,
+      ),
       _ => AuthGate(
         child: PlaceholderScreen(title: _titleFor(name), route: name),
       ),

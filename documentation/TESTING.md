@@ -1,6 +1,6 @@
 # Manual testing guide
 
-Step-by-step checks for Phases 1–8. Keep it short: do the steps in order when possible (later phases need companies/products/stock).
+Step-by-step checks for Phases 1–12. Keep it short: do the steps in order when possible (later phases need companies/products/stock).
 
 ---
 
@@ -27,7 +27,7 @@ flutter run
 2. Theme looks consistent (colors/text from app theme, not random hardcoded styles).
 3. On a wide window: sidebar/nav shows module list.
 4. On a narrow window: bottom/compact nav works; no clipped titles.
-5. Open **Reports** — placeholder screen appears (expected until Reports phase).
+5. Open **Reports** → reports hub with six report types (not a placeholder).
 
 ---
 
@@ -137,6 +137,54 @@ Use a product with known cost (opening unit cost and/or purchase costs).
 
 ---
 
+## Phase 9 — Reports
+
+**Prerequisite:** migration `20260910063757_reports.sql` applied.
+
+1. **Reports** hub → open each: Sales, Purchases, Profit, Stock, Product, Company.
+2. Sales: date/company/status/search; totals; cancelled excluded; tap row → sale detail.
+3. Purchases: completed only; totals; tap → purchase detail.
+4. Profit: revenue/COGS/gross profit match a known completed sale; product filter optional.
+5. Stock: balances match Stock module; low/out filters; History shows movements.
+6. Product: qty sold / revenue / COGS / profit from completed lines.
+7. Company: sales, purchases, profit, product count per company.
+8. Desktop tables + mobile cards; no overflow.
+9. **Export PDF / Export Excel / Print** — file matches current filters and on-screen totals.
+
+---
+
+## Phase 11 — Settings & Administration
+
+**Prerequisite:** migration `20260910070436_settings_admin.sql` applied.
+
+1. Login still works; session restore and logout still work.
+2. **Settings** → update own display name.
+3. As **admin**:
+   - Business profile → save name → export a report → header shows new name.
+   - Preferences → save currency/date/number formats.
+   - Administration → overview counts look sensible.
+   - Users → edit name/role/active; cannot disable/demote the last admin.
+4. As **non-admin**:
+   - No Administration / Business profile links (or blocked by AdminGate).
+   - `/admin` redirects away.
+5. Disable a non-admin user → that user cannot stay signed in.
+6. Roles & permissions screen lists capabilities for the current role.
+
+---
+
+## Phase 12 — Live Market
+
+**Prerequisite:** migration `20260911095540_market_data.sql` + Edge Function `fetch-market-rates` deployed.
+
+1. Open **Market** → rates load (or tap Refresh).
+2. Source + last updated shown; no API keys in app source.
+3. Select a pair → history + trend update after multiple refreshes.
+4. Admin → Settings → Market settings → disable → Market shows disabled / blocked.
+5. Re-enable → Refresh works again.
+6. Mobile cards + desktop split layout without overflow.
+
+---
+
 ## Quick smoke path (all phases in ~10 minutes)
 
 1. Login with credentials above.
@@ -144,8 +192,9 @@ Use a product with known cost (opening unit cost and/or purchase costs).
 3. Complete purchase → check Stock up.
 4. Complete sale → check Stock down; sale shows COGS/profit.
 5. Dashboard (this month) → sales/purchases/profit/counts look right.
-6. Cancel the sale → stock/profit reverse; dashboard refresh excludes it if cancelled.
-7. Sign out → login again.
+6. **Reports → Sales / Profit** → same totals; cancelled excluded after step 7.
+7. Cancel the sale → stock/profit reverse; dashboard + sales report refresh exclude it.
+8. Sign out → login again.
 
 ---
 

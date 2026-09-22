@@ -2,6 +2,8 @@
 
 Living project document. Update this file whenever a phase or meaningful change is completed.
 
+Plain-language feature guide for reading/understanding the product: [EASY_GUIDE.md](EASY_GUIDE.md).
+
 ## Product
 
 Internal ERP-style app for companies, products, purchases, sales, stock, costing, profit, and reports.

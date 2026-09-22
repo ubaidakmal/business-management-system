@@ -3,6 +3,7 @@
 Flutter + Supabase ERP app.
 
 Living notes: [documentation/PROJECT.md](documentation/PROJECT.md)  
+Easy feature guide (plain language): [documentation/EASY_GUIDE.md](documentation/EASY_GUIDE.md)  
 Manual test steps (all phases): [documentation/TESTING.md](documentation/TESTING.md)
 
 ## Run
